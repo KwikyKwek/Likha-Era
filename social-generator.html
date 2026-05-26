@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIKHA-ERA — Content Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream:     '#FBF5EF',
+            blush:     '#F8EBF1',
+            rose:      '#E8A4BE',
+            'deep-rose':'#A83D5A',
+            burgundy:  '#3D1A26',
+            taupe:     '#9B8090',
+            sand:      '#EDE5DC',
+            dark:      '#2A1520',
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', 'serif'],
+            body:    ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FBF5EF; }
+    h1,h2,h3,h4 { font-family: 'Cormorant Garamond', serif; }
+
+    /* grain overlay */
+    body::after {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 160px; opacity: .18;
+    }
+
+    /* input styling */
+    .form-input {
+      width: 100%; padding: .625rem .875rem; border-radius: 10px;
+      border: 1.5px solid #EDE5DC; background: white; color: #2A1520;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .875rem;
+      transition: border-color .2s, box-shadow .2s; outline: none;
+    }
+    .form-input:focus {
+      border-color: #E8A4BE;
+      box-shadow: 0 0 0 3px rgba(232,164,190,.18);
+    }
+    textarea.form-input { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    /* tone pills */
+    .tone-pill {
+      padding: .4rem 1rem; border-radius: 100px; font-size: .8125rem; font-weight: 600;
+      border: 1.5px solid #EDE5DC; background: white; color: #9B8090;
+      cursor: pointer; transition: all .2s; user-select: none;
+    }
+    .tone-pill.active { background: #A83D5A; border-color: #A83D5A; color: white; box-shadow: 0 4px 14px rgba(168,61,90,.25); }
+    .tone-pill:hover:not(.active) { border-color: #E8A4BE; color: #A83D5A; }
+
+    /* toggle switch */
+    .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 100px;
+      background: #EDE5DC; cursor: pointer; transition: background .25s;
+    }
+    .toggle input:checked + .toggle-track { background: #A83D5A; }
+    .toggle-track::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%; background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2); transition: transform .25s;
+    }
+    .toggle input:checked + .toggle-track::after { transform: translateX(20px); }
+
+    /* output card */
+    .output-card {
+      background: white; border-radius: 16px; border: 1.5px solid #EDE5DC;
+      box-shadow: 0 2px 12px rgba(168,61,90,.06);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
+    }
+    .output-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(168,61,90,.12); }
+
+    /* platform badge */
+    .platform-badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .25rem .75rem; border-radius: 100px; font-size: .75rem; font-weight: 700;
+      letter-spacing: .4px; text-transform: uppercase;
+    }
+
+    /* copy button */
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .35rem .85rem; border-radius: 8px; font-size: .78rem; font-weight: 600;
+      border: 1.5px solid #EDE5DC; background: white; color: #9B8090;
+      cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .copy-btn:hover { border-color: #A83D5A; color: #A83D5A; }
+    .copy-btn.copied { background: #A83D5A; border-color: #A83D5A; color: white; }
+
+    /* generate button */
+    .generate-btn {
+      width: 100%; padding: .875rem; border-radius: 12px; font-size: 1rem; font-weight: 700;
+      background: linear-gradient(135deg, #A83D5A 0%, #C1527A 100%);
+      color: white; border: none; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+      box-shadow: 0 4px 20px rgba(168,61,90,.3);
+      transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+    }
+    .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(168,61,90,.4); }
+    .generate-btn:active { transform: scale(.97); }
+    .generate-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* output text */
+    .output-text {
+      font-size: .875rem; line-height: 1.75; color: #2A1520;
+      white-space: pre-wrap; word-break: break-word;
+    }
+
+    /* shimmer skeleton */
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #EDE5DC 25%, #FFF8F5 50%, #EDE5DC 75%);
+      background-size: 400px 100%; animation: shimmer 1.4s ease infinite;
+      border-radius: 6px;
+    }
+
+    /* empty state */
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #EDE5DC; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #E8A4BE; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- ═══ NAV ═══════════════════════════════════════════ -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-sand">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-taupe hover:text-deep-rose transition-colors text-sm font-medium flex items-center gap-1.5">
+          ← Back to Site
+        </a>
+        <span class="text-sand">·</span>
+        <span class="font-display text-lg font-semibold text-dark">Content Studio</span>
+      </div>
+      <span class="text-xs font-semibold tracking-widest text-taupe uppercase bg-blush px-3 py-1 rounded-full">Admin Tool</span>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ══════════════════════════════════════════ -->
+  <div class="bg-gradient-to-br from-blush via-cream to-white border-b border-sand">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="font-display text-3xl sm:text-4xl font-light text-dark leading-tight">
+            Social Media <em class="italic text-deep-rose">Content Studio</em>
+          </h1>
+          <p class="text-taupe text-sm mt-1.5">Generate platform-ready captions, hashtags, and taglines for LIKHA-ERA products.</p>
+        </div>
+        <div class="flex gap-2 text-xs font-semibold">
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">📘 Facebook</span>
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">📸 Instagram</span>
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">🎵 TikTok</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN LAYOUT ═══════════════════════════════════ -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="flex flex-col lg:flex-row gap-6">
+
+      <!-- ── LEFT: INPUT PANEL ──────────────────────── -->
+      <aside class="lg:w-80 xl:w-96 flex-shrink-0">
+        <div class="lg:sticky lg:top-20 bg-white rounded-2xl border border-sand shadow-sm p-5 sm:p-6 space-y-5">
+
+          <div>
+            <h2 class="font-display text-xl font-semibold text-dark mb-0.5">Your Details</h2>
+            <p class="text-xs text-taupe">Fill in the fields below to generate content.</p>
+          </div>
+
+          <!-- Product Type -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Type</label>
+            <div class="relative">
+              <select id="productType" class="form-input appearance-none pr-8 cursor-pointer">
+                <option value="" disabled selected>Select a product…</option>
+                <option value="sticker sheet">Sticker Sheet</option>
+                <option value="bookmark">Bookmark</option>
+                <option value="keychain">Keychain</option>
+                <option value="custom art design">Custom Art Design</option>
+              </select>
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-taupe pointer-events-none text-xs">▾</span>
+            </div>
+          </div>
+
+          <!-- Theme / Style -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Theme / Style</label>
+            <input type="text" id="theme" class="form-input" placeholder="e.g. pastel kawaii, dark academia…" />
+            <p class="text-xs text-taupe">The visual vibe of the product.</p>
+          </div>
+
+          <!-- Promotion Details -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Promotion Details <span class="text-taupe font-normal normal-case">(optional)</span></label>
+            <textarea id="promoDetails" class="form-input" placeholder="e.g. 15% off this weekend only, free shipping on orders ₱300+…"></textarea>
+          </div>
+
+          <!-- Tone -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Tone</label>
+            <div class="flex flex-wrap gap-2">
+              <button class="tone-pill active" data-tone="cute">Cute 🎀</button>
+              <button class="tone-pill" data-tone="trendy">Trendy 🔥</button>
+              <button class="tone-pill" data-tone="professional">Professional ✦</button>
+              <button class="tone-pill" data-tone="minimalist">Minimalist ·</button>
+            </div>
+          </div>
+
+          <!-- Emoji Toggle -->
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-dark uppercase tracking-wider">Include Emojis</p>
+              <p class="text-xs text-taupe mt-0.5">Toggle off for clean text output.</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="emojiToggle" checked />
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+
+          <!-- Generate Button -->
+          <button class="generate-btn" id="generateBtn" onclick="generateAll()">
+            ✦ Generate Content
+          </button>
+
+          <!-- Quick tip -->
+          <p class="text-xs text-taupe text-center">Hit generate again for fresh variations ↺</p>
+
+        </div>
+      </aside>
+
+      <!-- ── RIGHT: OUTPUT PANEL ─────────────────────── -->
+      <main class="flex-1 min-w-0">
+
+        <!-- Empty state -->
+        <div id="emptyState" class="empty-state">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blush flex items-center justify-center text-3xl">✦</div>
+          <h3 class="font-display text-2xl text-dark mb-2">Ready to create</h3>
+          <p class="text-taupe text-sm max-w-xs mx-auto">Fill in your product details on the left and click <strong>Generate Content</strong> to get platform-ready captions.</p>
+        </div>
+
+        <!-- Output grid (hidden until generated) -->
+        <div id="outputGrid" class="hidden space-y-4">
+
+          <!-- Regenerate all bar -->
+          <div class="flex items-center justify-between bg-blush rounded-xl px-4 py-3">
+            <p class="text-sm font-semibold text-dark">6 pieces of content generated</p>
+            <button onclick="generateAll()" class="text-xs font-bold text-deep-rose hover:text-burgundy transition-colors flex items-center gap-1">
+              ↺ Regenerate All
+            </button>
+          </div>
+
+          <!-- Facebook -->
+          <div class="output-card" id="card-facebook">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
+              <span class="platform-badge bg-blue-50 text-blue-600">📘 Facebook</span>
+              <div class="flex items-center gap-2">
+                <button class="copy-btn" onclick="copyText('facebook')">
+                  <span>Copy</span>
+                </button>
+                <button onclick="regenerateSingle('facebook')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
+              </div>
+            </div>
+            <div class="px-5 py-4">
+              <p class="output-text" id="out-facebook"></p>
+            </div>
+          </div>
+
+          <!-- Instagram -->
+          <div class="output-card" id="card-instagram">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
+              <span class="platform-badge bg-pink-50 text-pink-600">📸 Instagram</span>
+              <div class="flex items-center gap-2">
+                <button class="copy-btn" onclick="copyText('instagram')">
+                  <span>Copy</span>
+                </button>
+                <button onclick="regenerateSingle('instagram')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
+              </div>
+            </div>
+            <div class="px-5 py-4">
+              <p class="output-text" id="out-instagram"></p>
+            </div>
+          </div>
+
+          <!-- TikTok -->
+          <div class="output-card" id="card-tiktok">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
+              <span class="platform-badge bg-gray-900 text-white">🎵 TikTok</span>
+              <div class="flex items-center gap-2">
+                <button class="copy-btn" onclick="copyText('tiktok')">
+                  <span>Copy</span>
+                </button>
+                <button onclick="regenerateSingle('tiktok')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
+              </div>
+            </div>
+            <div class="px-5 py-4">
+              <p class="output-text" id="out-tiktok"></p>
+            </div>
+          </div>
+
+          <!-- Hashtags -->
+          <div class="output-card" id="card-hashtags">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
+              <span class="platform-badge bg-rose-50 text-deep-rose"># Hashtags</span>
+              <div class="flex items-center gap-2">
+                <button class="copy-btn" onclick="copyText('hashtags')">
+                  <span>Copy</span>
+                </button>
+                <button onclick="regenerateSingle('hashtags')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
+              </div>
+            </div>
+            <div class="px-5 py-4">
+              <div id="out-hashtags-pills" class="flex flex-wrap gap-2"></div>
+              <p class="output-text hidden" id="out-hashtags"></p>
+            </div>
+          </div>
+
+          <!-- Product Description -->
+          <div class="output-card" id="card-description">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
+              <span class="platform-badge bg-amber-50 text-amber-700">📝 Product Description</span>
+              <div class="flex items-center gap-2">
+                <button class="copy-btn" onclick="copyText('description')">
+                  <span>Copy</span>
+                </button>
+                <button onclick="regenerateSingle('description')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
+              </div>
+            </div>
+            <div class="px-5 py-4">
+              <p class="output-text" id="out-description"></p>
+            </div>
+          </div>
+
+          <!-- Tagline -->
+          <div class="output-card" id="card-tagline">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
+              <span class="platform-badge bg-purple-50 text-purple-600">✦ Promo Tagline</span>
+              <div class="flex items-center gap-2">
+                <button class="copy-btn" onclick="copyText('tagline')">
+                  <span>Copy</span>
+                </button>
+                <button onclick="regenerateSingle('tagline')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
+              </div>
+            </div>
+            <div class="px-5 py-4">
+              <p class="output-text text-xl font-display italic text-deep-rose" id="out-tagline"></p>
+            </div>
+          </div>
+
+          <!-- Copy All -->
+          <button onclick="copyAll()" id="copyAllBtn"
+            class="w-full py-3.5 rounded-xl border-2 border-dashed border-rose text-deep-rose font-bold text-sm
+                   hover:bg-blush transition-colors flex items-center justify-center gap-2">
+            📋 Copy All Content
+          </button>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+
+  <script>
+  /* ═══════════════════════════════════════════════════════
+     TEMPLATE LIBRARY
+     Each key has 3 variants per tone so Regenerate gives
+     fresh results. Tokens: {product} {theme} {promo}
+  ═══════════════════════════════════════════════════════ */
+  const T = {
+    facebook: {
+      cute: [
+        "New drop alert!! 🎀✨ Our {theme} {product} is HERE and it's giving everything 😭💕\n\n{promo}\n\nShop via Shopee or slide into our DMs! 🛒",
+        "Okay but have you SEEN our new {theme} {product}?? 🥺✨ I'm in love\n\n{promo} 🎀\n\nGet yours before slots close!! 💕",
+        "POV: you just found the cutest {product} shop 😭🎀\n\n{theme} vibes incoming~~ {promo} ✨\n\nTap the link in bio or DM us!! 💕🛒",
+      ],
+      trendy: [
+        "that {theme} {product} aesthetic you didn't know you needed 👀✨\n\n{promo} — link in bio!\n\n🛒 Shopee · TikTok Shop",
+        "new era loading... ✨ {theme} {product} just dropped and it's giving everything 🔥\n\n{promo}\n\nShop now before it's gone 👀",
+        "{theme} {product} and I'm not taking constructive criticism 😌✨\n\n{promo}\n\nTrust us on this one 🫶 Link in bio!",
+      ],
+      professional: [
+        "Introducing our {theme} {product} — handcrafted with love and attention to detail.\n\n{promo}\n\nVisit our Shopee and TikTok Shop to place your order. ✦",
+        "Looking for the perfect personalized {product}? Our {theme} collection is now available!\n\n{promo}\n\nDM us or shop directly via Shopee. ✦",
+        "Quality craftsmanship meets artistic expression in our {theme} {product} series.\n\n{promo}\n\nOrder yours today — limited slots available! ✦",
+      ],
+      minimalist: [
+        "{theme} {product}.\n\nCustom made. {promo}",
+        "New: {theme} {product}.\n\n{promo}\n\nShop via Shopee.",
+        "{product}. {theme}. Yours.\n\n{promo}",
+      ],
+    },
+    instagram: {
+      cute: [
+        "new fave unlocked ✨🎀\n\nour {theme} {product} collection is HERE and it's too cute 😭💕\n\n{promo} — tap the link in bio!\n\n#likhaera #kawaii #cute #aesthetic #handmade",
+        "POV: you just found the most adorable {product} shop 🥺💕\n\n{theme} vibes only ✨ {promo}\n\n🎀 shop via link in bio!\n\n#likhaera #{productTag}love #cuteaesthetic #shopph",
+        "okay but have you seen our {theme} {product}?? 😭✨\n\nthey're SO pretty I can't 💕🎀\n\n{promo} — link in bio bestie!\n\n#likhaera #aesthetic #cute #handmade",
+      ],
+      trendy: [
+        "POV: you just found the most aesthetic {product} shop 👀✨\n\n{theme} era has arrived. {promo}\n\n🛒 link in bio!\n\n#aesthetic #likhaera #fyp #viral",
+        "not me obsessing over these {theme} {product}s 👀🔥\n\n{promo} — the link in bio is calling your name\n\n#likhaera #trendy #viral #artshop",
+        "{theme} {product} and I'm not taking constructive criticism 😌✨\n\n{promo}\n\n🛒 link in bio #likhaera #aesthetic #maincharacter",
+      ],
+      professional: [
+        "Elevate your everyday with our custom {theme} {product}. Every piece tells a story — let us help you tell yours.\n\n{promo}\n\n📦 Order via link in bio.\n\n#likhaera #custom{productTag} #handmade #smallbusiness",
+        "Where artistry meets personalization. Our {theme} {product} collection brings your vision to life.\n\n{promo}\n\n✨ Shop via Shopee · Link in bio\n\n#likhaera #custommade #artshop #shopph",
+        "Made with love, designed for you. Our {theme} {product} series is everything you've been looking for.\n\n{promo}\n\n🛒 Link in bio · Limited slots!\n\n#likhaera #handmade #personalizedgifts #philippines",
+      ],
+      minimalist: [
+        "{theme} {product}\ncustom made / made to order\n\n{promo}\n\n#likhaera #{productTag}",
+        "custom {product}\n{theme} aesthetic\n\n{promo}\n\n#likhaera #minimalist",
+        "{product}. {theme}.\nmade for you.\n\n{promo}\n\n#likhaera",
+      ],
+    },
+    tiktok: {
+      cute: [
+        "pov: ordering the most adorable {theme} {product} 🎀✨ {promo} #likhaera #cute #fyp #{productTag}",
+        "this {theme} {product} is sending me 😭💕 {promo} #likhaera #kawaii #fyp #aesthetic",
+        "NOT me crying over how cute these {theme} {product}s are 🥺✨ {promo} #likhaera #cute #fyp",
+      ],
+      trendy: [
+        "{theme} {product} era loading... 🔄✨ {promo} #fyp #viral #likhaera #{productTag}",
+        "no one talk to me I'm in my {theme} {product} era 🔥✨ {promo} #fyp #likhaera",
+        "that {theme} {product} aesthetic goes crazy 👀🔥 {promo} #fyp #viral #likhaera",
+      ],
+      professional: [
+        "Custom {theme} {product} made with love ✨ {promo} #LIKHAERA #custom{productTag} #smallbusiness #philippines",
+        "Quality {theme} {product} — personalized just for you! {promo} #likhaera #{productTag} #handmade #shopph",
+        "Your perfect {theme} {product} is just one order away ✨ {promo} #likhaera #custommade #{productTag}shop",
+      ],
+      minimalist: [
+        "custom {product} / {theme} vibes ✦ {promo} #likhaera #aesthetic",
+        "{theme} {product}. custom made. {promo} #likhaera",
+        "new: {theme} {product} ✦ {promo} #likhaera #minimal",
+      ],
+    },
+    hashtags: {
+      "sticker sheet": "#likhaera #customstickers #stickerpack #stickerart #kawaiistickers #cutestickers #stickershop #stickercommunity #smallbusiness #philippines #handmade #artshop #personalizedgifts",
+      bookmark:        "#likhaera #custombookmarks #bookmarkcollection #bookmarks #bookstagram #readingaesthetic #booklovers #smallbusiness #philippines #handmade #artshop",
+      keychain:        "#likhaera #customkeychain #keychainshop #beadedkeychain #kawaiikeychain #cutekeychain #keychain #smallbusiness #philippines #handmade #artshop",
+      "custom art design": "#likhaera #customart #commissions #customdesign #chibiart #fanart #personalizedgifts #artcommissions #smallbusiness #philippines #illustrationart",
+    },
+    description: {
+      cute: [
+        "The most adorable {theme} {product} you'll ever own 🎀 Made with love and lots of sparkle ✨ Custom orders welcome!",
+        "Super cute {theme} {product} that will make your heart melt!! 😭💕 Custom made just for you~",
+        "Your next fave {theme} {product} is HERE!! ✨ Kawaii vibes guaranteed 🎀 DM us to order!",
+      ],
+      trendy: [
+        "{theme} {product} that hits different 👀 Aesthetic, custom, and totally you ✨",
+        "The {theme} {product} aesthetic you've been looking for 🔥 Custom made, no cap.",
+        "{theme} {product} giving main character energy ✨ Custom, unique, iconic.",
+      ],
+      professional: [
+        "Premium quality {theme} {product}, handcrafted with care. Perfect as a personal treat or a thoughtful gift.",
+        "Our {theme} {product} collection features carefully crafted designs that bring your personality to life. Each piece is made to order.",
+        "Discover our {theme} {product} — where artistic vision meets quality craftsmanship. Custom orders welcome.",
+      ],
+      minimalist: [
+        "Custom {theme} {product}. Simple. Personal. Yours.",
+        "{theme} {product}. Made to order. Made for you.",
+        "Minimal design. Maximum meaning. {theme} {product}.",
+      ],
+    },
+    tagline: {
+      cute:         ["Making memories one {product} at a time! 🎀", "Cute things for cute people ✨💕", "Spreading joy, one custom piece at a time! 🌸", "Your aesthetic bestie 🎀✨"],
+      trendy:       ["Your aesthetic, our craft ✨", "Different by design 🔥", "Custom made, main character approved ✨", "Stand out. Stay cute. Shop LIKHA-ERA 🔥"],
+      professional: ["Where your story becomes art.", "Crafted with purpose, made for you.", "Artistry in every detail.", "Your vision, our craft."],
+      minimalist:   ["Custom. Crafted. Yours.", "Art for the intentional.", "Made with meaning.", "Simple. Personal. Perfect."],
+    },
+  };
+
+  /* ─── state ─── */
+  let currentTone     = 'cute';
+  let variantCounters = {}; // tracks which variant index per key to avoid repeats
+
+  /* ─── tone pills ─── */
+  document.querySelectorAll('.tone-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.tone-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentTone = pill.dataset.tone;
+    });
+  });
+
+  /* ─── helpers ─── */
+  function getInputs() {
+    return {
+      product:   document.getElementById('productType').value,
+      theme:     document.getElementById('theme').value.trim() || 'custom',
+      promo:     document.getElementById('promoDetails').value.trim() || 'Custom orders now open — DM us to start!',
+      tone:      currentTone,
+      useEmoji:  document.getElementById('emojiToggle').checked,
+    };
+  }
+
+  function productTag(product) {
+    return product.replace(/\s+/g, '').toLowerCase();
+  }
+
+  function fill(template, inputs) {
+    let text = template
+      .replace(/{product}/g, inputs.product)
+      .replace(/{theme}/g, inputs.theme)
+      .replace(/{promo}/g, inputs.promo)
+      .replace(/{productTag}/g, productTag(inputs.product));
+
+    if (!inputs.useEmoji) {
+      // strip emojis but keep text
+      text = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27FF}]/gu, '').replace(/\s{2,}/g, ' ').trim();
+    }
+    return text;
+  }
+
+  function pick(arr, key) {
+    /* Rotate through variants on each regenerate for the same key */
+    if (variantCounters[key] === undefined) variantCounters[key] = 0;
+    const idx = variantCounters[key] % arr.length;
+    variantCounters[key]++;
+    return arr[idx];
+  }
+
+  /* ─── generate ─── */
+  function buildContent(inputs, key) {
+    const p = inputs.product;
+    switch (key) {
+      case 'facebook':    return fill(pick(T.facebook[inputs.tone],    'fb'),   inputs);
+      case 'instagram':   return fill(pick(T.instagram[inputs.tone],   'ig'),   inputs);
+      case 'tiktok':      return fill(pick(T.tiktok[inputs.tone],      'tt'),   inputs);
+      case 'hashtags':    return T.hashtags[p] || T.hashtags['sticker sheet'];
+      case 'description': return fill(pick(T.description[inputs.tone], 'desc'), inputs);
+      case 'tagline':     return fill(pick(T.tagline[inputs.tone],     'tag'),  inputs);
+    }
+  }
+
+  function setOutput(key, text) {
+    if (key === 'hashtags') {
+      const tags   = text.split(' ').map(t => t.trim()).filter(Boolean);
+      const pills  = document.getElementById('out-hashtags-pills');
+      const hidden = document.getElementById('out-hashtags');
+      pills.innerHTML = tags.map(t =>
+        `<span class="inline-block px-2.5 py-1 rounded-full bg-blush text-deep-rose text-xs font-semibold">${t}</span>`
+      ).join('');
+      hidden.textContent = text; // used by copy
+    } else {
+      document.getElementById(`out-${key}`).textContent = text;
+    }
+  }
+
+  function generateAll() {
+    const inputs = getInputs();
+    if (!inputs.product) {
+      document.getElementById('productType').focus();
+      document.getElementById('productType').style.borderColor = '#A83D5A';
+      setTimeout(() => document.getElementById('productType').style.borderColor = '', 1500);
+      return;
+    }
+
+    // reset variant counters on full regenerate
+    variantCounters = {};
+
+    document.getElementById('emptyState').classList.add('hidden');
+    const grid = document.getElementById('outputGrid');
+    grid.classList.remove('hidden');
+
+    ['facebook','instagram','tiktok','hashtags','description','tagline'].forEach(key => {
+      setOutput(key, buildContent(inputs, key));
+    });
+
+    // smooth scroll to output on mobile
+    if (window.innerWidth < 1024) {
+      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function regenerateSingle(key) {
+    const inputs = getInputs();
+    if (!inputs.product) return;
+    setOutput(key, buildContent(inputs, key));
+    // flash the card
+    const card = document.getElementById(`card-${key}`);
+    card.style.boxShadow = '0 0 0 2px #A83D5A';
+    setTimeout(() => card.style.boxShadow = '', 500);
+  }
+
+  /* ─── copy ─── */
+  function copyText(key) {
+    let text;
+    if (key === 'hashtags') {
+      text = document.getElementById('out-hashtags').textContent;
+    } else {
+      text = document.getElementById(`out-${key}`).textContent;
+    }
+    if (!text) return;
+
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector(`#card-${key} .copy-btn`);
+      btn.classList.add('copied');
+      btn.querySelector('span').textContent = 'Copied!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.querySelector('span').textContent = 'Copy';
+      }, 2000);
+    });
+  }
+
+  function copyAll() {
+    const keys = ['facebook','instagram','tiktok','hashtags','description','tagline'];
+    const labels = {
+      facebook: '📘 FACEBOOK', instagram: '📸 INSTAGRAM', tiktok: '🎵 TIKTOK',
+      hashtags: '# HASHTAGS', description: '📝 DESCRIPTION', tagline: '✦ TAGLINE',
+    };
+    const all = keys.map(k => {
+      const text = k === 'hashtags'
+        ? document.getElementById('out-hashtags').textContent
+        : document.getElementById(`out-${k}`).textContent;
+      return `${labels[k]}\n${'─'.repeat(30)}\n${text}`;
+    }).join('\n\n');
+
+    navigator.clipboard.writeText(all).then(() => {
+      const btn = document.getElementById('copyAllBtn');
+      btn.textContent = '✓ All Content Copied!';
+      btn.classList.add('bg-blush');
+      setTimeout(() => {
+        btn.textContent = '📋 Copy All Content';
+        btn.classList.remove('bg-blush');
+      }, 2500);
+    });
+  }
+
+  /* ─── allow Enter key on inputs ─── */
+  ['theme','promoDetails'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey && id === 'theme') generateAll();
+    });
+  });
+  </script>
+
+</body>
+</html>

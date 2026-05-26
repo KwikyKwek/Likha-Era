@@ -5,3 +5,4 @@ temporary screenshots/
 *.log
 .DS_Store
 Thumbs.db
+.vercel
