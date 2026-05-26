@@ -402,6 +402,32 @@ input[type="color"] {
 }
 .preview-actions .btn-secondary { width: auto; flex: 1; font-size: 12.5px; padding: 9px 12px; }
 
+/* ── Auto-generate prompt ────────────────────────────────────────────── */
+.prompt-label-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 2px;
+}
+.btn-autogen {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 99px;
+  border: 1.5px solid var(--rose);
+  background: transparent; color: var(--deep-rose);
+  font-family: var(--font-body); font-size: 11px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  white-space: nowrap;
+}
+.btn-autogen:hover { background: var(--blush); transform: translateY(-1px); }
+.btn-autogen:active { transform: scale(0.97); }
+.btn-autogen:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.btn-autogen .spinning { display: inline-block; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.autogen-model-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 4px;
+}
+.autogen-model-label { font-size: 10.5px; color: var(--mauve); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
 /* ── Util ────────────────────────────────────────────────────────────── */
 .hidden { display: none !important; }
 .spacer { flex: 1; }
@@ -532,7 +558,20 @@ input[type="color"] {
 
         <!-- Positive prompt -->
         <div class="field">
-          <label>Positive Prompt</label>
+          <div class="prompt-label-row">
+            <label>Positive Prompt</label>
+            <button class="btn-autogen" id="btn-gen-prompt" onclick="generateComfyPrompt()">
+              <span id="autogen-icon">✦</span> Auto-generate from image
+            </button>
+          </div>
+          <div class="autogen-model-row">
+            <span class="autogen-model-label">Model:</span>
+            <select id="autogen-model" style="font-size:11px;padding:3px 6px;border-radius:6px;height:26px">
+              <option value="gemini-1.5-pro">gemini-1.5-pro (best vision)</option>
+              <option value="gemini-2.0-flash">gemini-2.0-flash (fast)</option>
+              <option value="gemini-1.5-flash">gemini-1.5-flash (balanced)</option>
+            </select>
+          </div>
           <textarea id="pos-prompt" rows="5" style="font-size:11.5px"></textarea>
         </div>
 
@@ -976,6 +1015,86 @@ async function runGemini() {
     document.getElementById('key-status').className = 'key-status err';
   } finally {
     setLoading('gemini', false);
+  }
+}
+
+// ── Stage 2: Auto-generate positive prompt ───────────────────────────────
+
+const COMFY_PROMPT_SYSTEM = `You are a ComfyUI / Stable Diffusion positive prompt expert specializing in chibi anime art.
+
+Analyze the chibi character illustration provided and write a detailed positive prompt that will reproduce it accurately.
+
+STRICT OUTPUT FORMAT — one single line of comma-separated tags. No explanations. No JSON. No markdown. No newlines. Just the tags.
+
+Structure (adapt every detail to match the image):
+(chibi:1.2), [count+gender OR animal breed], solo, perfect eyes, simple art, bold line, full body, [distinctive physical features], [eye color and shape], [expression], [hair/fur color and texture], [fur markings if animal], [clothing top — color + style + details], [clothing bottom — color + style], [accessories], [pose description], clean smooth shading, soft lighting, white background, centered composition, isolated character, clean sharp edges, white outline border, highly detailed, masterpiece, best quality
+
+Examples of good tags:
+- For a human: soft pastel pink wavy twin-tails hair, bright aqua large round eyes, cheerful smile showing teeth, white ruffled blouse with lace trim, denim short skirt, pink ribbon on head, standing arms slightly raised
+- For a dog: Shih Tzu breed, soft golden beige fluffy fur, darker grayish-brown fur on ears and muzzle, large expressive black round eyes, happy open mouth with pink tongue, curled tail, all four paws on ground
+- For a cat: orange tabby, white chest fur, thin black stripes, green almond eyes, sitting with tail wrapped around paws
+
+Be very specific about colors (e.g. "dusty rose hoodie" not just "pink top"). Output ONLY the prompt.`;
+
+async function generateComfyPrompt() {
+  const key = getKey();
+  if (!key) { toast('Enter your Gemini API key first'); return; }
+
+  const source = STATE.comfyInput || STATE.geminiOut;
+  if (!source) { toast('Complete Stage 1 first — need an image to analyze'); return; }
+
+  const model = document.getElementById('autogen-model').value;
+  const btn   = document.getElementById('btn-gen-prompt');
+  const icon  = document.getElementById('autogen-icon');
+
+  btn.disabled = true;
+  icon.className = 'spinning';
+  icon.textContent = '↻';
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: COMFY_PROMPT_SYSTEM },
+              { inline_data: { mime_type: 'image/png', data: toBase64(source) } },
+            ],
+          }],
+          generationConfig: {
+            temperature: 0.35,
+            maxOutputTokens: 800,
+          },
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    let text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!text) throw new Error('No response from Gemini');
+
+    // Strip any accidental markdown/quotes
+    text = text.replace(/^["'`]+|["'`]+$/g, '').replace(/^\*+|\*+$/g, '').trim();
+
+    document.getElementById('pos-prompt').value = text;
+    document.getElementById('pos-prompt').style.height = 'auto';
+    document.getElementById('pos-prompt').style.height = document.getElementById('pos-prompt').scrollHeight + 'px';
+    toast(`Prompt generated with ${model} ✓`);
+
+  } catch (e) {
+    toast(`Auto-generate error: ${e.message}`, 5000);
+  } finally {
+    btn.disabled = false;
+    icon.className = '';
+    icon.textContent = '✦';
   }
 }
 
