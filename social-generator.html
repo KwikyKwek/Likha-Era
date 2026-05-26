@@ -131,6 +131,24 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #EDE5DC; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #E8A4BE; }
+
+    /* ── Mode switcher ── */
+    .mode-btn {
+      flex: 1; padding: .625rem .5rem; border-radius: 10px; font-size: .8125rem; font-weight: 700;
+      border: 1.5px solid #EDE5DC; background: white; color: #9B8090;
+      cursor: pointer; transition: all .2s; user-select: none; text-align: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .mode-btn.active { background: #A83D5A; border-color: #A83D5A; color: white; box-shadow: 0 4px 14px rgba(168,61,90,.25); }
+    .mode-btn:hover:not(.active) { border-color: #E8A4BE; color: #A83D5A; }
+
+    /* ── AI drop zone ── */
+    .ai-dropzone {
+      border: 2px dashed #EDE5DC; border-radius: 14px; padding: 1.25rem 1rem;
+      text-align: center; cursor: pointer; transition: all .2s; background: #FBF5EF;
+    }
+    .ai-dropzone:hover, .ai-dropzone.drag-over { border-color: #E8A4BE; background: #F8EBF1; }
+    .ai-dropzone.drag-over { box-shadow: 0 0 0 4px rgba(232,164,190,.2); }
   </style>
 </head>
 <body class="min-h-screen">
@@ -153,7 +171,7 @@
           <h1 class="font-display text-3xl sm:text-4xl font-light text-dark leading-tight">
             Social Media <em class="italic text-deep-rose">Content Studio</em>
           </h1>
-          <p class="text-taupe text-sm mt-1.5">Generate platform-ready captions for promotions, BTS, before & after, and thank-you posts.</p>
+          <p class="text-taupe text-sm mt-1.5">Generate platform-ready captions for promotions, BTS, before &amp; after, and thank-you posts.</p>
         </div>
         <div class="flex flex-wrap gap-2 text-xs font-semibold">
           <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">🛒 Promotional</span>
@@ -177,96 +195,152 @@
             <p class="text-xs text-taupe">Choose a post type, fill in the fields, then generate.</p>
           </div>
 
-          <!-- Post Type -->
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-dark uppercase tracking-wider">Post Type</label>
-            <div class="grid grid-cols-2 gap-2">
-              <button class="type-pill active" data-type="promo">🛒 Promotional</button>
-              <button class="type-pill" data-type="bts">🎬 Behind the Scenes</button>
-              <button class="type-pill" data-type="beforeafter">✨ Before &amp; After</button>
-              <button class="type-pill" data-type="thankyou">💕 Thank You</button>
-            </div>
+          <!-- ── MODE SWITCHER ── -->
+          <div class="flex gap-2">
+            <button class="mode-btn active" data-mode="template">✦ Templates</button>
+            <button class="mode-btn" data-mode="ai">🤖 AI Photo</button>
           </div>
 
-          <hr class="border-sand" />
+          <!-- ══════════════════════════════════════
+               AI PANEL
+          ══════════════════════════════════════ -->
+          <div id="aiPanel" class="hidden space-y-4">
 
-          <!-- ── PROMO INPUTS ── -->
-          <div class="input-group space-y-4" data-group="promo">
+            <!-- API Key -->
             <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Type</label>
-              <div class="relative">
-                <select id="productType" class="form-input appearance-none pr-8 cursor-pointer">
-                  <option value="" disabled selected>Select a product…</option>
-                  <option value="sticker sheet">Sticker Sheet</option>
-                  <option value="bookmark">Bookmark</option>
-                  <option value="keychain">Keychain</option>
-                  <option value="custom art design">Custom Art Design</option>
-                </select>
-                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-taupe pointer-events-none text-xs">▾</span>
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Gemini API Key</label>
+                <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
+                   class="text-xs text-deep-rose hover:text-burgundy font-semibold transition-colors">Get free key →</a>
+              </div>
+              <input type="password" id="geminiKey" class="form-input" placeholder="Paste your API key…" />
+              <p class="text-xs text-taupe">Saved in browser · only sent to Google's API, never to any other server.</p>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Photo</label>
+
+              <div class="ai-dropzone" id="aiDropZone">
+                <div class="text-2xl mb-1.5">📸</div>
+                <p class="text-xs font-semibold text-dark mb-0.5">Click or drag &amp; drop</p>
+                <p class="text-xs text-taupe">JPG, PNG, WEBP — any product photo</p>
+                <input type="file" id="aiFileInput" accept="image/*" class="hidden" />
+              </div>
+
+              <!-- Image preview (hidden until loaded) -->
+              <div id="aiImagePreview" class="hidden flex items-center gap-3 p-3 bg-blush rounded-xl border border-rose/30">
+                <img id="aiThumb" src="" alt="Preview" class="w-14 h-14 rounded-lg object-cover border border-sand flex-shrink-0" />
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold text-dark truncate" id="aiFileName">image.jpg</p>
+                  <p class="text-xs text-taupe mt-0.5">Ready to analyze</p>
+                </div>
+                <button onclick="clearAIImage()" class="text-xs font-bold text-taupe hover:text-deep-rose transition-colors flex-shrink-0">× Remove</button>
               </div>
             </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Theme / Style</label>
-              <input type="text" id="theme" class="form-input" placeholder="e.g. pastel kawaii, dark academia…" />
-            </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Promotion Details <span class="text-taupe font-normal normal-case">(optional)</span></label>
-              <textarea id="promoDetails" class="form-input" placeholder="e.g. 15% off this weekend, free shipping on ₱300+…"></textarea>
-            </div>
-          </div>
 
-          <!-- ── BTS INPUTS ── -->
-          <div class="input-group hidden space-y-4" data-group="bts">
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">What You're Working On</label>
-              <input type="text" id="btsWorkingOn" class="form-input" placeholder="e.g. keychain orders, sticker batch…" />
-            </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Current Process Step</label>
-              <input type="text" id="btsProcess" class="form-input" placeholder="e.g. sketching, printing, packaging…" />
-            </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Fun Fact / Detail <span class="text-taupe font-normal normal-case">(optional)</span></label>
-              <textarea id="btsFunFact" class="form-input" placeholder="e.g. Each sticker is individually cut by hand!"></textarea>
-            </div>
-          </div>
+            <!-- Detected chip (hidden until AI responds) -->
+            <div id="aiDetectedChip" class="hidden px-3 py-1.5 rounded-full bg-blush text-deep-rose text-xs font-semibold inline-block"></div>
 
-          <!-- ── BEFORE & AFTER INPUTS ── -->
-          <div class="input-group hidden space-y-4" data-group="beforeafter">
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Customer Reference</label>
-              <input type="text" id="baCustomer" class="form-input" placeholder="e.g. @username, a sweet customer…" />
-              <p class="text-xs text-taupe">Use "a sweet customer" for privacy.</p>
-            </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Product / Item</label>
-              <input type="text" id="baProduct" class="form-input" placeholder="e.g. keychain, sticker sheet…" />
-            </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Art Style / Theme <span class="text-taupe font-normal normal-case">(optional)</span></label>
-              <input type="text" id="baTheme" class="form-input" placeholder="e.g. pastel anime, chibi…" />
-            </div>
-          </div>
+          </div><!-- /aiPanel -->
 
-          <!-- ── THANK YOU INPUTS ── -->
-          <div class="input-group hidden space-y-4" data-group="thankyou">
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Customer Name</label>
-              <input type="text" id="tyCustomer" class="form-input" placeholder="e.g. @username, a sweet customer…" />
+          <!-- ══════════════════════════════════════
+               TEMPLATE PANEL
+          ══════════════════════════════════════ -->
+          <div id="templatePanel" class="space-y-5">
+
+            <!-- Post Type -->
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Post Type</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button class="type-pill active" data-type="promo">🛒 Promotional</button>
+                <button class="type-pill" data-type="bts">🎬 Behind the Scenes</button>
+                <button class="type-pill" data-type="beforeafter">✨ Before &amp; After</button>
+                <button class="type-pill" data-type="thankyou">💕 Thank You</button>
+              </div>
             </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Ordered</label>
-              <input type="text" id="tyProduct" class="form-input" placeholder="e.g. custom keychain, sticker sheet…" />
+
+            <hr class="border-sand" />
+
+            <!-- ── PROMO INPUTS ── -->
+            <div class="input-group space-y-4" data-group="promo">
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Type</label>
+                <div class="relative">
+                  <select id="productType" class="form-input appearance-none pr-8 cursor-pointer">
+                    <option value="" disabled selected>Select a product…</option>
+                    <option value="sticker sheet">Sticker Sheet</option>
+                    <option value="bookmark">Bookmark</option>
+                    <option value="keychain">Keychain</option>
+                    <option value="custom art design">Custom Art Design</option>
+                  </select>
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-taupe pointer-events-none text-xs">▾</span>
+                </div>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Theme / Style</label>
+                <input type="text" id="theme" class="form-input" placeholder="e.g. pastel kawaii, dark academia…" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Promotion Details <span class="text-taupe font-normal normal-case">(optional)</span></label>
+                <textarea id="promoDetails" class="form-input" placeholder="e.g. 15% off this weekend, free shipping on ₱300+…"></textarea>
+              </div>
             </div>
-            <div class="space-y-1.5">
-              <label class="text-xs font-bold text-dark uppercase tracking-wider">Special Message / Next-Order Promo <span class="text-taupe font-normal normal-case">(optional)</span></label>
-              <textarea id="tyPromo" class="form-input" placeholder="e.g. Use code THANKYOU for 10% off your next order!"></textarea>
+
+            <!-- ── BTS INPUTS ── -->
+            <div class="input-group hidden space-y-4" data-group="bts">
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">What You're Working On</label>
+                <input type="text" id="btsWorkingOn" class="form-input" placeholder="e.g. keychain orders, sticker batch…" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Current Process Step</label>
+                <input type="text" id="btsProcess" class="form-input" placeholder="e.g. sketching, printing, packaging…" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Fun Fact / Detail <span class="text-taupe font-normal normal-case">(optional)</span></label>
+                <textarea id="btsFunFact" class="form-input" placeholder="e.g. Each sticker is individually cut by hand!"></textarea>
+              </div>
             </div>
-          </div>
+
+            <!-- ── BEFORE & AFTER INPUTS ── -->
+            <div class="input-group hidden space-y-4" data-group="beforeafter">
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Customer Reference</label>
+                <input type="text" id="baCustomer" class="form-input" placeholder="e.g. @username, a sweet customer…" />
+                <p class="text-xs text-taupe">Use "a sweet customer" for privacy.</p>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Product / Item</label>
+                <input type="text" id="baProduct" class="form-input" placeholder="e.g. keychain, sticker sheet…" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Art Style / Theme <span class="text-taupe font-normal normal-case">(optional)</span></label>
+                <input type="text" id="baTheme" class="form-input" placeholder="e.g. pastel anime, chibi…" />
+              </div>
+            </div>
+
+            <!-- ── THANK YOU INPUTS ── -->
+            <div class="input-group hidden space-y-4" data-group="thankyou">
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Customer Name</label>
+                <input type="text" id="tyCustomer" class="form-input" placeholder="e.g. @username, a sweet customer…" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Ordered</label>
+                <input type="text" id="tyProduct" class="form-input" placeholder="e.g. custom keychain, sticker sheet…" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-dark uppercase tracking-wider">Special Message / Next-Order Promo <span class="text-taupe font-normal normal-case">(optional)</span></label>
+                <textarea id="tyPromo" class="form-input" placeholder="e.g. Use code THANKYOU for 10% off your next order!"></textarea>
+              </div>
+            </div>
+
+          </div><!-- /templatePanel -->
 
           <hr class="border-sand" />
 
-          <!-- Tone -->
+          <!-- Tone (always visible) -->
           <div class="space-y-2">
             <label class="text-xs font-bold text-dark uppercase tracking-wider">Tone</label>
             <div class="flex flex-wrap gap-2">
@@ -277,7 +351,7 @@
             </div>
           </div>
 
-          <!-- Emoji Toggle -->
+          <!-- Emoji Toggle (always visible) -->
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-bold text-dark uppercase tracking-wider">Include Emojis</p>
@@ -290,7 +364,7 @@
           </div>
 
           <button class="generate-btn" id="generateBtn" onclick="generateAll()">✦ Generate Content</button>
-          <p class="text-xs text-taupe text-center">Hit generate again for fresh variations ↺</p>
+          <p class="text-xs text-taupe text-center" id="generateHint">Hit generate again for fresh variations ↺</p>
 
         </div>
       </aside>
@@ -308,7 +382,7 @@
 
           <div class="flex items-center justify-between bg-blush rounded-xl px-4 py-3">
             <p class="text-sm font-semibold text-dark" id="countBarText">Content generated</p>
-            <button onclick="generateAll()" class="text-xs font-bold text-deep-rose hover:text-burgundy transition-colors flex items-center gap-1">↺ Regenerate All</button>
+            <button onclick="regenerateAll()" class="text-xs font-bold text-deep-rose hover:text-burgundy transition-colors flex items-center gap-1">↺ Regenerate All</button>
           </div>
 
           <!-- Facebook -->
@@ -772,6 +846,34 @@
   let currentTone     = 'cute';
   let currentPostType = 'promo';
   let variantCounters = {};
+  let currentMode     = 'template'; // 'template' | 'ai'
+  let aiImageDataUrl  = null;
+
+  /* ── mode switching ── */
+  function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    document.getElementById('aiPanel').classList.toggle('hidden', mode !== 'ai');
+    document.getElementById('templatePanel').classList.toggle('hidden', mode === 'ai');
+    const btn  = document.getElementById('generateBtn');
+    const hint = document.getElementById('generateHint');
+    if (mode === 'ai') {
+      btn.textContent  = '🤖 Analyze & Generate';
+      btn.onclick      = analyzeWithGemini;
+      hint.textContent = 'Upload a photo, then analyze with AI ✦';
+    } else {
+      btn.textContent  = '✦ Generate Content';
+      btn.onclick      = generateAll;
+      hint.textContent = 'Hit generate again for fresh variations ↺';
+    }
+    // Reset output
+    document.getElementById('emptyState').classList.remove('hidden');
+    document.getElementById('outputGrid').classList.add('hidden');
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.addEventListener('click', () => setMode(b.dataset.mode));
+  });
 
   /* ── post type pills ── */
   document.querySelectorAll('.type-pill').forEach(pill => {
@@ -779,11 +881,9 @@
       document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
       currentPostType = pill.dataset.type;
-      // show correct input group
       document.querySelectorAll('.input-group').forEach(g => {
         g.classList.toggle('hidden', g.dataset.group !== currentPostType);
       });
-      // reset output panel
       document.getElementById('emptyState').classList.remove('hidden');
       document.getElementById('outputGrid').classList.add('hidden');
       variantCounters = {};
@@ -855,7 +955,7 @@
 
   /* ── build content per key ── */
   function buildContent(inputs, key) {
-    const t = inputs.postType;
+    const t    = inputs.postType;
     const tone = inputs.tone;
     switch (key) {
       case 'facebook':
@@ -886,7 +986,7 @@
     }
   }
 
-  /* ── generate all ── */
+  /* ── generate all (template mode) ── */
   function generateAll() {
     const inputs = getInputs();
     if (inputs.postType === 'promo' && !inputs.product) {
@@ -915,7 +1015,17 @@
     if (window.innerWidth < 1024) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  /* ── regenerate all (handles both modes) ── */
+  function regenerateAll() {
+    if (currentMode === 'ai') {
+      analyzeWithGemini();
+    } else {
+      generateAll();
+    }
+  }
+
   function regenerateSingle(key) {
+    if (currentMode === 'ai') return; // No single-regen in AI mode — re-run full analysis
     const inputs = getInputs();
     setOutput(key, buildContent(inputs, key));
     const card = document.getElementById(`card-${key}`);
@@ -952,6 +1062,228 @@
     });
   }
 
+  /* ═══════════════════════════════════════════════════════
+     AI IMAGE UPLOAD
+  ═══════════════════════════════════════════════════════ */
+  document.getElementById('aiDropZone').addEventListener('click', () => document.getElementById('aiFileInput').click());
+
+  document.getElementById('aiDropZone').addEventListener('dragover', e => {
+    e.preventDefault();
+    document.getElementById('aiDropZone').classList.add('drag-over');
+  });
+
+  document.getElementById('aiDropZone').addEventListener('dragleave', () => {
+    document.getElementById('aiDropZone').classList.remove('drag-over');
+  });
+
+  document.getElementById('aiDropZone').addEventListener('drop', e => {
+    e.preventDefault();
+    document.getElementById('aiDropZone').classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadAIImage(file);
+  });
+
+  document.getElementById('aiFileInput').addEventListener('change', e => {
+    if (e.target.files[0]) loadAIImage(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  function loadAIImage(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      aiImageDataUrl = e.target.result;
+      const thumb = document.getElementById('aiThumb');
+      thumb.src = aiImageDataUrl;
+      document.getElementById('aiImagePreview').classList.remove('hidden');
+      document.getElementById('aiDropZone').classList.add('hidden');
+      document.getElementById('aiDetectedChip').classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+    document.getElementById('aiFileName').textContent = file.name;
+  }
+
+  function clearAIImage() {
+    aiImageDataUrl = null;
+    document.getElementById('aiImagePreview').classList.add('hidden');
+    document.getElementById('aiDropZone').classList.remove('hidden');
+    document.getElementById('aiDetectedChip').classList.add('hidden');
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     GEMINI API KEY — PERSIST IN LOCALSTORAGE
+  ═══════════════════════════════════════════════════════ */
+  (function restoreKey() {
+    const savedKey = localStorage.getItem('likhaera_gemini_key');
+    if (savedKey) document.getElementById('geminiKey').value = savedKey;
+  })();
+
+  document.getElementById('geminiKey').addEventListener('input', e => {
+    localStorage.setItem('likhaera_gemini_key', e.target.value.trim());
+  });
+
+  /* ═══════════════════════════════════════════════════════
+     GEMINI AI INTEGRATION
+  ═══════════════════════════════════════════════════════ */
+
+  // Resize image before sending (max 1024px)
+  async function resizeForAI(dataUrl, maxPx = 1024) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width  = Math.round(img.width  * scale);
+        c.height = Math.round(img.height * scale);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = dataUrl;
+    });
+  }
+
+  function showSkeletonOutput() {
+    document.getElementById('emptyState').classList.add('hidden');
+    document.getElementById('outputGrid').classList.remove('hidden');
+    document.getElementById('countBarText').textContent = '✦ Analyzing image with AI…';
+    const skelHtml = `<div class="space-y-2 py-1">
+      <div class="skeleton h-3 w-full rounded"></div>
+      <div class="skeleton h-3 w-4/5 rounded"></div>
+      <div class="skeleton h-3 w-3/5 rounded"></div>
+    </div>`;
+    ALL_CARDS.forEach(k => {
+      document.getElementById(`card-${k}`).classList.remove('hidden');
+      const el = k === 'hashtags'
+        ? document.getElementById('out-hashtags-pills')
+        : document.getElementById(`out-${k}`);
+      el.innerHTML = skelHtml;
+    });
+  }
+
+  function clearSkeletonOutput() {
+    ALL_CARDS.forEach(k => {
+      const el = k === 'hashtags'
+        ? document.getElementById('out-hashtags-pills')
+        : document.getElementById(`out-${k}`);
+      el.innerHTML = '';
+    });
+  }
+
+  function fillFromAI(ai) {
+    const type   = ['promo','bts','beforeafter','thankyou'].includes(ai.postType) ? ai.postType : 'promo';
+    currentPostType = type;
+    const config = POST_CONFIG[type];
+
+    document.getElementById('countBarText').textContent = config.label.replace('generated', 'generated · AI ✦');
+
+    ALL_CARDS.forEach(k => {
+      document.getElementById(`card-${k}`).classList.toggle('hidden', !config.cards.includes(k));
+    });
+
+    if (ai.facebook)    setOutput('facebook',    ai.facebook);
+    if (ai.instagram)   setOutput('instagram',   ai.instagram);
+    if (ai.tiktok)      setOutput('tiktok',      ai.tiktok);
+    if (ai.hashtags)    setOutput('hashtags',    ai.hashtags);
+    if (ai.description) setOutput('description', ai.description);
+    if (ai.tagline)     setOutput('tagline',     ai.tagline);
+
+    // Show detected chip
+    if (ai.productType || ai.theme) {
+      const chip = document.getElementById('aiDetectedChip');
+      chip.textContent = `Detected: ${ai.productType || '—'} · ${ai.theme || '—'}`;
+      chip.classList.remove('hidden');
+    }
+
+    if (window.innerWidth < 1024) {
+      document.getElementById('outputGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  async function analyzeWithGemini() {
+    const key = document.getElementById('geminiKey').value.trim();
+    if (!key) { alert('Please enter your Gemini API key first.'); return; }
+    if (!aiImageDataUrl) { alert('Please upload a photo first.'); return; }
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled    = true;
+    btn.textContent = '✦ Analyzing…';
+
+    // Show skeleton output immediately
+    showSkeletonOutput();
+
+    try {
+      const resized  = await resizeForAI(aiImageDataUrl);
+      const base64   = resized.split(',')[1];
+      const mimeType = 'image/jpeg';
+
+      const prompt = `You are a social media content writer for LIKHA-ERA, a Filipino handmade art shop selling custom sticker sheets, bookmarks, keychains, and chibi character art.
+
+Analyze this product photo and write social media content.
+
+Return ONLY valid JSON with these exact fields (no markdown, no code blocks, just raw JSON):
+{
+  "postType": "promo",
+  "productType": "detected product name",
+  "theme": "visual aesthetic you detect (e.g. pastel kawaii, dark academia, chibi)",
+  "facebook": "Facebook caption — 2-3 short paragraphs, warm and engaging, end with call to action, include emojis",
+  "instagram": "Instagram caption — punchy opening line, short paragraphs, 6-8 hashtags at bottom",
+  "tiktok": "TikTok caption — max 150 characters, casual and fun, 3-4 hashtags",
+  "hashtags": "12-15 relevant hashtags as single space-separated string, always include #likhaera",
+  "description": "1-2 sentence product description for shop listings",
+  "tagline": "One memorable tagline under 10 words"
+}
+
+Rules:
+- Brand voice: cute, warm, enthusiastic, small business energy
+- Use ✦ naturally as brand signature
+- Filipino-English mix is welcome where it fits naturally
+- If image shows a behind-the-scenes process, set postType to "bts"
+- If it shows before/after art transformation, set postType to "beforeafter"
+- If it shows a thank-you or customer package, set postType to "thankyou"
+- Otherwise use "promo"`;
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [
+              { text: prompt },
+              { inline_data: { mime_type: mimeType, data: base64 } }
+            ]}],
+            generationConfig: { temperature: 0.85, response_mime_type: 'application/json' }
+          })
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      const raw  = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!raw) throw new Error('Empty response from Gemini.');
+
+      // Parse — strip markdown code fences if present
+      const jsonStr = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+      const ai = JSON.parse(jsonStr);
+
+      fillFromAI(ai);
+
+    } catch (err) {
+      // Clear skeletons, show error
+      clearSkeletonOutput();
+      document.getElementById('emptyState').classList.remove('hidden');
+      document.getElementById('outputGrid').classList.add('hidden');
+      alert('AI generation failed: ' + err.message);
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = currentMode === 'ai' ? '🤖 Analyze & Generate' : '✦ Generate Content';
+    }
+  }
+
+  /* ── keyboard shortcut ── */
   document.getElementById('theme').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) generateAll();
   });
