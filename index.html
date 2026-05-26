@@ -638,18 +638,16 @@
     .logo-blob-deco.heart { bottom: 8px; left: -4px;  animation-delay: -2s; font-size: 1.1rem; opacity: 0.8; }
     .logo-blob-deco.dot   { top: 30%; right: -10px; font-size: 0.875rem; animation-delay: -1s; color: var(--rose); }
 
-    /* ─── ABOUT: SOCIAL SPRITE ───────────────────── */
-    .social-icon-sprite {
+    /* ─── ABOUT: SOCIAL ICONS ───────────────────── */
+    .social-icon {
       width: 62px; height: 62px;
-      background-image: url('Assets/Logo/SocialMediaLogos.png');
-      background-size: 200% 200%;
-      background-repeat: no-repeat;
+      object-fit: cover;
       flex-shrink: 0;
     }
-    .spr-fb { background-position: 0% 0%;   border-radius: 38% 62% 55% 45% / 48% 42% 58% 52%; }
-    .spr-ig { background-position: 100% 0%;  border-radius: 62% 38% 42% 58% / 55% 62% 38% 45%; }
-    .spr-sh { background-position: 0% 100%; border-radius: 45% 55% 62% 38% / 62% 45% 55% 38%; }
-    .spr-tt { background-position: 100% 100%; border-radius: 55% 45% 38% 62% / 38% 55% 45% 62%; }
+    .social-icon.spr-ig { border-radius: 62% 38% 42% 58% / 55% 62% 38% 45%; }
+    .social-icon.spr-fb { border-radius: 38% 62% 55% 45% / 48% 42% 58% 52%; }
+    .social-icon.spr-sh { border-radius: 45% 55% 62% 38% / 62% 45% 55% 38%; }
+    .social-icon.spr-tt { border-radius: 55% 45% 38% 62% / 38% 55% 45% 62%; }
 
     /* ─── FORM: OPTION CHIPS ─────────────────────── */
     .option-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
@@ -1066,22 +1064,22 @@
         <p class="section-subtitle reveal reveal-d2" style="margin: 0 auto 3rem;">Stay updated with new designs, behind-the-scenes process, and special announcements.</p>
         <div class="social-grid">
           <a href="https://www.instagram.com/likhaera" class="social-card reveal" target="_blank" rel="noopener">
-            <div class="social-icon-sprite spr-ig"></div>
+            <img class="social-icon spr-ig" src="Assets/Logo/InstagramLogo.png" alt="Instagram" />
             <span class="social-name">Instagram</span>
             <span class="social-handle">@likhaera</span>
           </a>
           <a href="https://www.facebook.com/people/Likhaera/61570675013224/" class="social-card reveal reveal-d1" target="_blank" rel="noopener">
-            <div class="social-icon-sprite spr-fb"></div>
+            <img class="social-icon spr-fb" src="Assets/Logo/FacebookLogo.png" alt="Facebook" />
             <span class="social-name">Facebook</span>
             <span class="social-handle">Likhaera</span>
           </a>
           <a href="https://shopee.ph/likhaera#product_list" class="social-card reveal reveal-d2" target="_blank" rel="noopener">
-            <div class="social-icon-sprite spr-sh"></div>
+            <img class="social-icon spr-sh" src="Assets/Logo/ShopeeLogo.png" alt="Shopee" />
             <span class="social-name">Shopee</span>
             <span class="social-handle">likhaera</span>
           </a>
           <a href="https://www.tiktok.com/@likhaera?_r=1&_t=ZS-96dD7frzpZw" class="social-card reveal reveal-d3" target="_blank" rel="noopener">
-            <div class="social-icon-sprite spr-tt"></div>
+            <img class="social-icon spr-tt" src="Assets/Logo/TiktokLogo.png" alt="TikTok" />
             <span class="social-name">TikTok</span>
             <span class="social-handle">@likhaera</span>
           </a>
