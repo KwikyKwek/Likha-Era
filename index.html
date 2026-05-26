@@ -441,13 +441,13 @@
     .social-section { background: white; padding: 5rem 0 7rem; text-align: center; }
     .social-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; margin-top: 3rem; }
     .social-card {
-      display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
-      padding: 2.25rem 1.5rem; background: var(--cream); border-radius: 22px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+      padding: 2.5rem 1.5rem; background: var(--cream); border-radius: 22px;
       border: 1.5px solid var(--sand); text-decoration: none; color: var(--dark);
       transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
     }
     .social-card:hover { transform: translateY(-9px); border-color: var(--rose); box-shadow: 0 14px 40px rgba(168,61,90,0.13); }
-    .social-icon { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--blush); font-size: 1.5rem; }
+    .social-icon { width: 84px; height: 84px; border-radius: 20px; object-fit: cover; display: block; flex-shrink: 0; background: transparent; }
     .social-name { font-weight: 700; font-size: 1rem; }
     .social-handle { font-size: 0.8125rem; color: var(--taupe); }
 
@@ -638,16 +638,6 @@
     .logo-blob-deco.heart { bottom: 8px; left: -4px;  animation-delay: -2s; font-size: 1.1rem; opacity: 0.8; }
     .logo-blob-deco.dot   { top: 30%; right: -10px; font-size: 0.875rem; animation-delay: -1s; color: var(--rose); }
 
-    /* ─── ABOUT: SOCIAL ICONS ───────────────────── */
-    .social-icon {
-      width: 62px; height: 62px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-    .social-icon.spr-ig { border-radius: 62% 38% 42% 58% / 55% 62% 38% 45%; }
-    .social-icon.spr-fb { border-radius: 38% 62% 55% 45% / 48% 42% 58% 52%; }
-    .social-icon.spr-sh { border-radius: 45% 55% 62% 38% / 62% 45% 55% 38%; }
-    .social-icon.spr-tt { border-radius: 55% 45% 38% 62% / 38% 55% 45% 62%; }
 
     /* ─── FORM: OPTION CHIPS ─────────────────────── */
     .option-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
@@ -1064,22 +1054,22 @@
         <p class="section-subtitle reveal reveal-d2" style="margin: 0 auto 3rem;">Stay updated with new designs, behind-the-scenes process, and special announcements.</p>
         <div class="social-grid">
           <a href="https://www.instagram.com/likhaera" class="social-card reveal" target="_blank" rel="noopener">
-            <img class="social-icon spr-ig" src="Assets/Logo/InstagramLogo.png" alt="Instagram" />
+            <img class="social-icon" src="Assets/Logo/InstagramLogo.png" alt="Instagram" />
             <span class="social-name">Instagram</span>
             <span class="social-handle">@likhaera</span>
           </a>
           <a href="https://www.facebook.com/people/Likhaera/61570675013224/" class="social-card reveal reveal-d1" target="_blank" rel="noopener">
-            <img class="social-icon spr-fb" src="Assets/Logo/FacebookLogo.png" alt="Facebook" />
+            <img class="social-icon" src="Assets/Logo/FacebookLogo.png" alt="Facebook" />
             <span class="social-name">Facebook</span>
             <span class="social-handle">Likhaera</span>
           </a>
           <a href="https://shopee.ph/likhaera#product_list" class="social-card reveal reveal-d2" target="_blank" rel="noopener">
-            <img class="social-icon spr-sh" src="Assets/Logo/ShopeeLogo.png" alt="Shopee" />
+            <img class="social-icon" src="Assets/Logo/ShopeeLogo.png" alt="Shopee" />
             <span class="social-name">Shopee</span>
             <span class="social-handle">likhaera</span>
           </a>
           <a href="https://www.tiktok.com/@likhaera?_r=1&_t=ZS-96dD7frzpZw" class="social-card reveal reveal-d3" target="_blank" rel="noopener">
-            <img class="social-icon spr-tt" src="Assets/Logo/TiktokLogo.png" alt="TikTok" />
+            <img class="social-icon" src="Assets/Logo/TiktokLogo.png" alt="TikTok" />
             <span class="social-name">TikTok</span>
             <span class="social-handle">@likhaera</span>
           </a>
