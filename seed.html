@@ -48,10 +48,12 @@
   <p class="sub">This will create all Firestore collections with their initial structure.</p>
 
   <div class="collections">
-    <div class="col-row"><span class="col-name">orders</span><span class="col-desc">Customer order submissions</span><span class="col-status" id="st-orders">⏳</span></div>
+    <div class="col-row"><span class="col-name">orders</span><span class="col-desc">Customer order submissions (website / Shopee / TikTok)</span><span class="col-status" id="st-orders">⏳</span></div>
     <div class="col-row"><span class="col-name">customers</span><span class="col-desc">Customer records per order</span><span class="col-status" id="st-customers">⏳</span></div>
     <div class="col-row"><span class="col-name">products</span><span class="col-desc">Stickers, Bookmarks, Keychains catalog</span><span class="col-status" id="st-products">⏳</span></div>
     <div class="col-row"><span class="col-name">order_tracking</span><span class="col-desc">Status updates per order</span><span class="col-status" id="st-order_tracking">⏳</span></div>
+    <div class="col-row"><span class="col-name">shopee_orders</span><span class="col-desc">Shopee platform orders → references orders</span><span class="col-status" id="st-shopee_orders">⏳</span></div>
+    <div class="col-row"><span class="col-name">tiktok_orders</span><span class="col-desc">TikTok Shop orders → references orders</span><span class="col-status" id="st-tiktok_orders">⏳</span></div>
     <div class="col-row"><span class="col-name">loyalty_rewards</span><span class="col-desc">Customer points &amp; tiers</span><span class="col-status" id="st-loyalty_rewards">⏳</span></div>
     <div class="col-row"><span class="col-name">uploaded_files</span><span class="col-desc">Reference image records</span><span class="col-status" id="st-uploaded_files">⏳</span></div>
     <div class="col-row"><span class="col-name">contacts</span><span class="col-desc">Social &amp; contact inquiries</span><span class="col-status" id="st-contacts">⏳</span></div>
@@ -115,6 +117,9 @@
       deliveryNotes:      'None',
       referenceImageUrls: [],
       status:             'sample',
+      platform:           'website',       // 'website' | 'shopee' | 'tiktok'
+      shopeeOrderRef:     null,            // Shopee order ID if platform = shopee
+      tiktokOrderRef:     null,            // TikTok order ID if platform = tiktok
       createdAt:          ts(),
       updatedAt:          ts(),
     }]);
@@ -147,6 +152,36 @@
       status:    'sample',
       notes:     'Sample tracking entry created during initialization',
       updatedAt: ts(),
+    }]);
+
+    /* ── shopee_orders ── */
+    await seedCollection('shopee_orders', [{
+      orderId:             'sample-order-id',  // → reference to orders/{id}
+      shopeeOrderNumber:   'SHP-000000001',
+      shopeeProductId:     '',
+      shopeeBuyerUsername: 'sample_buyer',
+      shopeeItemName:      'Custom Sticker Sheet',
+      amount:              0,
+      shippingFee:         0,
+      status:              'sample',
+      platform:            'shopee',
+      createdAt:           ts(),
+      updatedAt:           ts(),
+    }]);
+
+    /* ── tiktok_orders ── */
+    await seedCollection('tiktok_orders', [{
+      orderId:             'sample-order-id',  // → reference to orders/{id}
+      tiktokOrderNumber:   'TTK-000000001',
+      tiktokProductId:     '',
+      tiktokBuyerUsername: 'sample_buyer',
+      tiktokItemName:      'Custom Keychain',
+      amount:              0,
+      shippingFee:         0,
+      status:              'sample',
+      platform:            'tiktok',
+      createdAt:           ts(),
+      updatedAt:           ts(),
     }]);
 
     /* ── loyalty_rewards ── */
