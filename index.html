@@ -10,7 +10,6 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics-compat.js"></script>
   <script>
     const app = firebase.initializeApp({
@@ -22,9 +21,11 @@
       appId:             "1:972622064907:web:e09ae7a5a6fda58920860e",
       measurementId:     "G-E1S68EE3FR"
     });
-    const db      = firebase.firestore();
-    const storage = firebase.storage();
+    const db = firebase.firestore();
     firebase.analytics();
+
+    const CLOUDINARY_CLOUD  = 'dgvnemxxb';
+    const CLOUDINARY_PRESET = 'likhaera-orders';
   </script>
   <!-- EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -1518,10 +1519,13 @@
         if (fileInput && fileInput.files.length > 0) {
           btn.textContent = 'Uploading images…';
           for (const file of fileInput.files) {
-            const ref  = storage.ref(`orders/${Date.now()}_${file.name}`);
-            const snap = await ref.put(file);
-            const url  = await snap.ref.getDownloadURL();
-            imageUrls.push(url);
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', CLOUDINARY_PRESET);
+            fd.append('folder', 'likhaera-orders');
+            const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.secure_url) imageUrls.push(data.secure_url);
           }
         }
 

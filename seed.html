@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LIKHA-ERA — Firebase Seed</title>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey:            "AIzaSyCdIg-O2BYIl7Pp3CtaFx8z0hbyBUiZFCg",
+      authDomain:        "likhaera-99a2c.firebaseapp.com",
+      projectId:         "likhaera-99a2c",
+      storageBucket:     "likhaera-99a2c.firebasestorage.app",
+      messagingSenderId: "972622064907",
+      appId:             "1:972622064907:web:e09ae7a5a6fda58920860e",
+      measurementId:     "G-E1S68EE3FR"
+    });
+    const db = firebase.firestore();
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #FFF8F5; color: #2A1520; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .card { background: white; border-radius: 20px; padding: 2.5rem; max-width: 680px; width: 100%; box-shadow: 0 8px 40px rgba(194,82,122,0.12); }
+    h1 { font-size: 1.5rem; color: #C1527A; margin-bottom: 0.25rem; }
+    .sub { color: #9B7285; font-size: 0.875rem; margin-bottom: 2rem; }
+    .collections { display: grid; gap: 0.75rem; margin-bottom: 2rem; }
+    .col-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: #FDE8F0; border-radius: 10px; font-size: 0.875rem; }
+    .col-name { font-weight: 700; color: #C1527A; min-width: 160px; }
+    .col-desc { color: #9B7285; }
+    .col-status { margin-left: auto; font-size: 1rem; }
+    .btn { width: 100%; padding: 1rem; background: #C1527A; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #A83D5A; }
+    .btn:disabled { background: #E8A4BE; cursor: not-allowed; }
+    .log { margin-top: 1.5rem; background: #2A1520; border-radius: 12px; padding: 1rem 1.25rem; font-family: monospace; font-size: 0.8rem; color: #FDE8F0; max-height: 260px; overflow-y: auto; display: none; }
+    .log.visible { display: block; }
+    .log-line { padding: 0.15rem 0; }
+    .log-line.ok   { color: #7BF5A0; }
+    .log-line.err  { color: #FF8A8A; }
+    .log-line.info { color: #F2A7C3; }
+    .success-box { margin-top: 1.5rem; background: #F0FFF4; border: 1.5px solid #7BF5A0; border-radius: 12px; padding: 1rem 1.25rem; text-align: center; display: none; }
+    .success-box.visible { display: block; }
+    .success-box p { color: #1a7a3c; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>✦ LIKHA-ERA — Database Initializer</h1>
+  <p class="sub">This will create all Firestore collections with their initial structure.</p>
+
+  <div class="collections">
+    <div class="col-row"><span class="col-name">orders</span><span class="col-desc">Customer order submissions</span><span class="col-status" id="st-orders">⏳</span></div>
+    <div class="col-row"><span class="col-name">customers</span><span class="col-desc">Customer records per order</span><span class="col-status" id="st-customers">⏳</span></div>
+    <div class="col-row"><span class="col-name">products</span><span class="col-desc">Stickers, Bookmarks, Keychains catalog</span><span class="col-status" id="st-products">⏳</span></div>
+    <div class="col-row"><span class="col-name">order_tracking</span><span class="col-desc">Status updates per order</span><span class="col-status" id="st-order_tracking">⏳</span></div>
+    <div class="col-row"><span class="col-name">loyalty_rewards</span><span class="col-desc">Customer points &amp; tiers</span><span class="col-status" id="st-loyalty_rewards">⏳</span></div>
+    <div class="col-row"><span class="col-name">uploaded_files</span><span class="col-desc">Reference image records</span><span class="col-status" id="st-uploaded_files">⏳</span></div>
+    <div class="col-row"><span class="col-name">contacts</span><span class="col-desc">Social &amp; contact inquiries</span><span class="col-status" id="st-contacts">⏳</span></div>
+  </div>
+
+  <button class="btn" id="seedBtn" onclick="runSeed()">Initialize All Collections →</button>
+
+  <div class="log" id="log"></div>
+
+  <div class="success-box" id="successBox">
+    <p>✦ All collections created! Open your Firebase Console → Firestore to see the data.</p>
+    <p style="margin-top:0.5rem;color:#9B7285;font-size:0.8125rem;">You can now delete this seed.html file — it's no longer needed.</p>
+  </div>
+</div>
+
+<script>
+  const ts = firebase.firestore.FieldValue.serverTimestamp;
+
+  function log(msg, type = 'info') {
+    const el = document.getElementById('log');
+    el.classList.add('visible');
+    const line = document.createElement('div');
+    line.className = `log-line ${type}`;
+    line.textContent = msg;
+    el.appendChild(line);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function setStatus(col, ok) {
+    document.getElementById('st-' + col).textContent = ok ? '✅' : '❌';
+  }
+
+  async function seedCollection(name, docs) {
+    log(`Creating "${name}" collection…`);
+    try {
+      for (const doc of docs) {
+        await db.collection(name).add(doc);
+      }
+      setStatus(name, true);
+      log(`  ✓ ${docs.length} document(s) added to "${name}"`, 'ok');
+    } catch (e) {
+      setStatus(name, false);
+      log(`  ✗ Error in "${name}": ${e.message}`, 'err');
+    }
+  }
+
+  async function runSeed() {
+    const btn = document.getElementById('seedBtn');
+    btn.disabled = true;
+    btn.textContent = 'Initializing…';
+    log('Starting database initialization…', 'info');
+
+    /* ── orders ── */
+    await seedCollection('orders', [{
+      customerName:       'Sample Customer',
+      customerContact:    'sample@email.com',
+      productType:        'Stickers',
+      quantity:           5,
+      orderDetails:       'Material: Vinyl Glossy\nFinish: Matte\nCut Type: Die Cut\nDesign Source: Custom Design by LIKHA-ERA',
+      description:        'This is a sample order entry created during database initialization.',
+      deliveryNotes:      'None',
+      referenceImageUrls: [],
+      status:             'sample',
+      createdAt:          ts(),
+      updatedAt:          ts(),
+    }]);
+
+    /* ── customers ── */
+    await seedCollection('customers', [{
+      name:        'Sample Customer',
+      contact:     'sample@email.com',
+      orderId:     'sample-order-id',
+      createdAt:   ts(),
+      lastOrderAt: ts(),
+    }]);
+
+    /* ── products ── */
+    await seedCollection('products', [
+      { name: 'Regular Sticker Sheet',      category: 'stickers',  description: 'Custom sticker sheet, regular material',      available: true, createdAt: ts() },
+      { name: 'Vinyl Glossy Sticker Sheet', category: 'stickers',  description: 'Custom sticker sheet, vinyl glossy material',  available: true, createdAt: ts() },
+      { name: 'Vinyl Matte Sticker Sheet',  category: 'stickers',  description: 'Custom sticker sheet, vinyl matte material',   available: true, createdAt: ts() },
+      { name: 'Photo Sticker Sheet',        category: 'stickers',  description: 'Custom sticker sheet, photo sticker material', available: true, createdAt: ts() },
+      { name: 'Regular Bookmark',           category: 'bookmarks', description: 'Custom bookmark, regular material',            available: true, createdAt: ts() },
+      { name: 'Vinyl Glossy Bookmark',      category: 'bookmarks', description: 'Custom bookmark, vinyl glossy material',       available: true, createdAt: ts() },
+      { name: 'Vinyl Matte Bookmark',       category: 'bookmarks', description: 'Custom bookmark, vinyl matte material',        available: true, createdAt: ts() },
+      { name: 'Custom Keychain',            category: 'keychains', description: 'Custom keychain with optional bead charms',    available: true, createdAt: ts() },
+      { name: 'Custom Keychain + Beads',    category: 'keychains', description: 'Custom keychain with personalized bead name',  available: true, createdAt: ts() },
+    ]);
+
+    /* ── order_tracking ── */
+    await seedCollection('order_tracking', [{
+      orderId:   'sample-order-id',
+      status:    'sample',
+      notes:     'Sample tracking entry created during initialization',
+      updatedAt: ts(),
+    }]);
+
+    /* ── loyalty_rewards ── */
+    await seedCollection('loyalty_rewards', [{
+      customerId:   'sample-customer-id',
+      points:       0,
+      tier:         'bronze',
+      transactions: [],
+      createdAt:    ts(),
+    }]);
+
+    /* ── uploaded_files ── */
+    await seedCollection('uploaded_files', [{
+      orderId:    'sample-order-id',
+      storageUrl: 'https://placeholder.example.com/sample.jpg',
+      uploadedAt: ts(),
+    }]);
+
+    /* ── contacts ── */
+    await seedCollection('contacts', [{
+      name:      'Sample Inquiry',
+      contact:   'sample@email.com',
+      message:   'Sample contact entry created during initialization',
+      platform:  'website',
+      createdAt: ts(),
+    }]);
+
+    log('Done! All collections initialized.', 'ok');
+    btn.textContent = 'Initialization Complete ✓';
+    document.getElementById('successBox').classList.add('visible');
+  }
+</script>
+</body>
+</html>
