@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIKHA-ERA — Watermark Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#FBF5EF', blush: '#F8EBF1', rose: '#E8A4BE',
+            'deep-rose': '#A83D5A', burgundy: '#3D1A26', taupe: '#9B8090',
+            sand: '#EDE5DC', dark: '#2A1520',
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', 'serif'],
+            body:    ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FBF5EF; }
+    h1,h2,h3,h4 { font-family: 'Cormorant Garamond', serif; }
+
+    body::after {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 160px; opacity: .18;
+    }
+
+    /* drop zone */
+    .drop-zone {
+      border: 2px dashed #EDE5DC; border-radius: 14px; padding: 1.5rem 1rem;
+      text-align: center; cursor: pointer; transition: all .2s; background: #FBF5EF;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: #E8A4BE; background: #F8EBF1;
+    }
+    .drop-zone.drag-over { box-shadow: 0 0 0 4px rgba(232,164,190,.2); }
+
+    /* thumb */
+    .thumb {
+      width: 60px; height: 60px; object-fit: cover; border-radius: 8px;
+      border: 2px solid transparent; cursor: pointer;
+      transition: border-color .15s, transform .15s;
+      flex-shrink: 0;
+    }
+    .thumb.active { border-color: #A83D5A; transform: scale(1.06); }
+    .thumb:hover:not(.active) { border-color: #E8A4BE; }
+    .thumb-wrap { position: relative; }
+    .thumb-del {
+      position: absolute; top: -5px; right: -5px; width: 18px; height: 18px;
+      background: #A83D5A; color: white; border-radius: 50%; border: none;
+      font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .15s;
+    }
+    .thumb-wrap:hover .thumb-del { opacity: 1; }
+
+    /* form inputs */
+    .form-input {
+      width: 100%; padding: .55rem .875rem; border-radius: 10px;
+      border: 1.5px solid #EDE5DC; background: white; color: #2A1520;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .875rem;
+      transition: border-color .2s, box-shadow .2s; outline: none;
+    }
+    .form-input:focus { border-color: #E8A4BE; box-shadow: 0 0 0 3px rgba(232,164,190,.18); }
+
+    /* pills */
+    .seg-btn {
+      flex: 1; padding: .45rem .5rem; border-radius: 8px; font-size: .78rem; font-weight: 600;
+      border: 1.5px solid #EDE5DC; background: white; color: #9B8090;
+      cursor: pointer; transition: all .15s; text-align: center;
+    }
+    .seg-btn.active { background: #A83D5A; border-color: #A83D5A; color: white; }
+    .seg-btn:hover:not(.active) { border-color: #E8A4BE; color: #A83D5A; }
+
+    /* position grid */
+    .pos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 96px; }
+    .pos-btn {
+      width: 28px; height: 28px; border-radius: 6px;
+      border: 1.5px solid #EDE5DC; background: white; cursor: pointer;
+      transition: all .15s; display: flex; align-items: center; justify-content: center; font-size: 8px;
+    }
+    .pos-btn.active { background: #A83D5A; border-color: #A83D5A; }
+    .pos-btn:hover:not(.active) { border-color: #E8A4BE; background: #F8EBF1; }
+
+    /* color swatches */
+    .swatch {
+      width: 28px; height: 28px; border-radius: 8px; border: 2px solid transparent;
+      cursor: pointer; transition: transform .15s, border-color .15s; flex-shrink: 0;
+    }
+    .swatch.active { border-color: #A83D5A; transform: scale(1.15); }
+
+    /* slider */
+    input[type=range] {
+      -webkit-appearance: none; width: 100%; height: 4px;
+      border-radius: 4px; background: #EDE5DC; outline: none; cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+      background: #A83D5A; cursor: pointer; border: 2px solid white;
+      box-shadow: 0 1px 6px rgba(168,61,90,.3);
+    }
+
+    /* toggle */
+    .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 100px;
+      background: #EDE5DC; cursor: pointer; transition: background .2s;
+    }
+    .toggle input:checked + .toggle-track { background: #A83D5A; }
+    .toggle-track::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px; border-radius: 50%; background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2); transition: transform .2s;
+    }
+    .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+
+    /* action buttons */
+    .btn-primary {
+      padding: .75rem 1.25rem; border-radius: 12px; font-size: .875rem; font-weight: 700;
+      background: linear-gradient(135deg, #A83D5A 0%, #C1527A 100%);
+      color: white; border: none; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+      box-shadow: 0 4px 16px rgba(168,61,90,.28);
+      transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+      display: inline-flex; align-items: center; gap: .5rem;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(168,61,90,.38); }
+    .btn-primary:active { transform: scale(.97); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .btn-outline {
+      padding: .75rem 1.25rem; border-radius: 12px; font-size: .875rem; font-weight: 700;
+      border: 1.5px solid #EDE5DC; background: white; color: #9B8090; cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: border-color .15s, color .15s;
+      display: inline-flex; align-items: center; gap: .5rem;
+    }
+    .btn-outline:hover { border-color: #A83D5A; color: #A83D5A; }
+    .btn-outline:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* preview canvas container */
+    #previewWrap {
+      background: repeating-conic-gradient(#EDE5DC 0% 25%, white 0% 50%) 0 0 / 20px 20px;
+      border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center;
+      min-height: 300px; position: relative;
+    }
+    #previewCanvas { max-width: 100%; max-height: 60vh; object-fit: contain; display: block; }
+
+    /* empty preview */
+    #previewEmpty { text-align: center; padding: 3rem 2rem; }
+
+    /* progress bar */
+    #progressBar { transition: width .3s; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #EDE5DC; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #E8A4BE; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- NAV -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-sand">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-taupe hover:text-deep-rose transition-colors text-sm font-medium flex items-center gap-1.5">← Back to Site</a>
+        <span class="text-sand">·</span>
+        <span class="font-display text-lg font-semibold text-dark">Watermark Studio</span>
+      </div>
+      <span class="text-xs font-semibold tracking-widest text-taupe uppercase bg-blush px-3 py-1 rounded-full">Admin Tool</span>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="bg-gradient-to-br from-blush via-cream to-white border-b border-sand">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="font-display text-3xl sm:text-4xl font-light text-dark leading-tight">
+            Photo <em class="italic text-deep-rose">Watermark Studio</em>
+          </h1>
+          <p class="text-taupe text-sm mt-1.5">Protect your art — apply LIKHA-ERA watermarks to photos before posting.</p>
+        </div>
+        <div class="flex gap-2 text-xs font-semibold">
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">✦ Text</span>
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">🎀 Logo</span>
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">⊞ Tile</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="flex flex-col lg:flex-row gap-6">
+
+      <!-- LEFT: SETTINGS -->
+      <aside class="lg:w-80 xl:w-88 flex-shrink-0">
+        <div class="lg:sticky lg:top-20 bg-white rounded-2xl border border-sand shadow-sm p-5 space-y-5 overflow-y-auto" style="max-height: calc(100vh - 6rem);">
+
+          <div>
+            <h2 class="font-display text-xl font-semibold text-dark mb-0.5">Settings</h2>
+            <p class="text-xs text-taupe">Upload images, configure watermark, download.</p>
+          </div>
+
+          <!-- Upload -->
+          <div>
+            <label class="text-xs font-bold text-dark uppercase tracking-wider block mb-2">Images</label>
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+              <div class="text-2xl mb-1">📂</div>
+              <p class="text-sm font-semibold text-dark">Drop images here</p>
+              <p class="text-xs text-taupe mt-0.5">or click to browse · JPG, PNG, WEBP</p>
+            </div>
+            <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp" class="hidden" />
+
+            <!-- Gallery strip -->
+            <div id="gallery" class="flex flex-wrap gap-2 mt-3 empty:hidden"></div>
+            <p id="galleryCount" class="text-xs text-taupe mt-1.5 hidden"></p>
+          </div>
+
+          <hr class="border-sand" />
+
+          <!-- Watermark Type -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Watermark Type</label>
+            <div class="flex gap-1.5">
+              <button class="seg-btn active" data-wm="text">✦ Text</button>
+              <button class="seg-btn" data-wm="logo">🎀 Logo</button>
+              <button class="seg-btn" data-wm="both">Both</button>
+            </div>
+          </div>
+
+          <!-- Placement Mode -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Placement</label>
+            <div class="flex gap-1.5">
+              <button class="seg-btn active" data-mode="single">Single</button>
+              <button class="seg-btn" data-mode="tile">Diagonal Tile</button>
+            </div>
+          </div>
+
+          <!-- Position Grid (single mode) -->
+          <div id="positionSection" class="space-y-2">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Position</label>
+            <div class="flex items-center gap-4">
+              <div class="pos-grid" id="posGrid">
+                <button class="pos-btn" data-pos="tl" title="Top Left">↖</button>
+                <button class="pos-btn" data-pos="tc" title="Top Center">↑</button>
+                <button class="pos-btn" data-pos="tr" title="Top Right">↗</button>
+                <button class="pos-btn" data-pos="ml" title="Middle Left">←</button>
+                <button class="pos-btn" data-pos="mc" title="Center">·</button>
+                <button class="pos-btn" data-pos="mr" title="Middle Right">→</button>
+                <button class="pos-btn" data-pos="bl" title="Bottom Left">↙</button>
+                <button class="pos-btn active" data-pos="br" title="Bottom Right (default)">↘</button>
+                <button class="pos-btn" data-pos="bc" title="Bottom Center">↓</button>
+              </div>
+              <div class="text-xs text-taupe leading-relaxed">
+                Click a cell to set<br/>watermark position
+              </div>
+            </div>
+          </div>
+
+          <!-- TEXT SETTINGS -->
+          <div id="textSettings" class="space-y-3">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Text Content</label>
+            <input type="text" id="wmText" class="form-input" value="LIKHA-ERA" maxlength="40" placeholder="Your watermark text…" />
+
+            <div class="space-y-1">
+              <div class="flex justify-between items-center">
+                <label class="text-xs font-semibold text-dark">Text Size</label>
+                <span class="text-xs text-taupe" id="textSizeVal">Medium</span>
+              </div>
+              <input type="range" id="textSize" min="1" max="5" step="1" value="3" />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-dark">Color</label>
+              <div class="flex items-center gap-2">
+                <div class="swatch active" data-color="white" style="background:#ffffff; border: 1px solid #EDE5DC;" title="White"></div>
+                <div class="swatch" data-color="rose" style="background:#A83D5A;" title="Deep Rose"></div>
+                <div class="swatch" data-color="dark" style="background:#2A1520;" title="Dark"></div>
+                <div class="swatch" data-color="blush" style="background:#F2A7C3;" title="Blush Pink"></div>
+                <div class="swatch" data-color="gold" style="background:#D4A843;" title="Gold"></div>
+                <input type="color" id="customColor" value="#ffffff" title="Custom color"
+                  class="w-7 h-7 rounded-lg border-2 border-sand cursor-pointer p-0.5" />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold text-dark">Background Box</p>
+                <p class="text-xs text-taupe">Adds a semi-transparent box behind text.</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="textBox" />
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- LOGO SETTINGS -->
+          <div id="logoSettings" class="space-y-3 hidden">
+            <div class="flex items-center gap-3 bg-blush rounded-xl p-3">
+              <img src="Assets/Logo/LikhaeraLogo.jpg" class="w-10 h-10 rounded-lg object-cover" />
+              <div>
+                <p class="text-xs font-bold text-dark">LikhaeraLogo.jpg</p>
+                <p class="text-xs text-taupe">Auto-loaded from Assets/Logo/</p>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between items-center">
+                <label class="text-xs font-semibold text-dark">Logo Size</label>
+                <span class="text-xs text-taupe" id="logoSizeVal">Medium</span>
+              </div>
+              <input type="range" id="logoSize" min="1" max="5" step="1" value="3" />
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold text-dark">Remove White Background</p>
+                <p class="text-xs text-taupe">Blend mode — removes white from logo.</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="logoMultiply" checked />
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- SHARED: OPACITY -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Opacity</label>
+              <span class="text-xs text-taupe" id="opacityVal">40%</span>
+            </div>
+            <input type="range" id="wmOpacity" min="5" max="95" step="5" value="40" />
+          </div>
+
+          <hr class="border-sand" />
+
+          <!-- Actions -->
+          <div class="space-y-2.5">
+            <button class="btn-primary w-full" id="applyAllBtn" onclick="applyAll()" disabled>
+              ✦ Apply to All Images
+            </button>
+            <button class="btn-outline w-full" id="downloadAllBtn" onclick="downloadAll()" disabled>
+              ↓ Download All
+            </button>
+          </div>
+
+          <!-- Progress -->
+          <div id="progressWrap" class="hidden">
+            <div class="bg-sand rounded-full h-2 overflow-hidden">
+              <div id="progressBar" class="h-full bg-deep-rose rounded-full" style="width:0%"></div>
+            </div>
+            <p class="text-xs text-taupe mt-1 text-center" id="progressText"></p>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- RIGHT: PREVIEW -->
+      <main class="flex-1 min-w-0 space-y-4">
+
+        <!-- Empty state -->
+        <div id="previewEmpty" class="bg-white rounded-2xl border border-sand p-12 text-center">
+          <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blush flex items-center justify-center text-4xl">✦</div>
+          <h3 class="font-display text-2xl text-dark mb-2">No image selected</h3>
+          <p class="text-taupe text-sm max-w-xs mx-auto">Upload photos on the left, configure your watermark settings, then apply.</p>
+        </div>
+
+        <!-- Preview panel -->
+        <div id="previewPanel" class="hidden space-y-3">
+          <!-- Image info bar -->
+          <div class="flex items-center justify-between bg-white rounded-xl border border-sand px-4 py-3">
+            <div>
+              <p class="text-sm font-semibold text-dark" id="previewFilename">—</p>
+              <p class="text-xs text-taupe" id="previewDimensions">—</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-blush text-deep-rose font-semibold px-2.5 py-1 rounded-full" id="previewStatus">Original</span>
+              <button class="btn-outline text-xs py-1.5 px-3" id="downloadSingleBtn" onclick="downloadSingle()" disabled>
+                ↓ Download
+              </button>
+            </div>
+          </div>
+
+          <!-- Canvas preview -->
+          <div id="previewWrap">
+            <canvas id="previewCanvas"></canvas>
+          </div>
+
+          <!-- Image nav -->
+          <div id="imageNav" class="flex items-center justify-between bg-white rounded-xl border border-sand px-4 py-3 hidden">
+            <button onclick="navImage(-1)" class="text-taupe hover:text-deep-rose transition-colors text-sm font-semibold">← Prev</button>
+            <span class="text-xs text-taupe" id="imageNavText">1 / 1</span>
+            <button onclick="navImage(1)" class="text-taupe hover:text-deep-rose transition-colors text-sm font-semibold">Next →</button>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+  /* ═══════════════════════════════════════════
+     STATE
+  ═══════════════════════════════════════════ */
+  const images = []; // { id, name, file, dataUrl, naturalW, naturalH, watermarkedUrl }
+  let selectedId = null;
+  let previewDebounce = null;
+
+  const S = {
+    wmType:   'text',    // text | logo | both
+    mode:     'single',  // single | tile
+    position: 'br',      // tl tc tr ml mc mr bl bc br
+    text:     'LIKHA-ERA',
+    textSize: 3,         // 1-5
+    color:    'white',
+    colorHex: '#ffffff',
+    textBox:  false,
+    logoSize: 3,         // 1-5
+    logoMultiply: true,
+    opacity:  40,        // 5-95
+  };
+
+  // Preload logo
+  const LOGO = new Image();
+  LOGO.src = 'Assets/Logo/LikhaeraLogo.jpg';
+
+  const TEXT_SIZES = [0.025, 0.04, 0.055, 0.075, 0.1];      // fraction of min(W,H)
+  const LOGO_SIZES = [0.08,  0.13, 0.18,  0.25,  0.35];      // fraction of min(W,H)
+  const SIZE_LABELS = ['XS','Small','Medium','Large','XL'];
+
+  const COLOR_MAP = {
+    white: '#ffffff', rose: '#A83D5A', dark: '#2A1520', blush: '#F2A7C3', gold: '#D4A843',
+  };
+
+  /* ═══════════════════════════════════════════
+     UPLOAD
+  ═══════════════════════════════════════════ */
+  const dropZone  = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    addFiles([...e.dataTransfer.files].filter(f => f.type.startsWith('image/')));
+  });
+  fileInput.addEventListener('change', () => {
+    addFiles([...fileInput.files]);
+    fileInput.value = '';
+  });
+
+  function addFiles(files) {
+    files.forEach(file => {
+      const id = Date.now() + Math.random();
+      const reader = new FileReader();
+      reader.onload = e => {
+        const dataUrl = e.target.result;
+        const img = new Image();
+        img.onload = () => {
+          images.push({ id, name: file.name, file, dataUrl, naturalW: img.naturalWidth, naturalH: img.naturalHeight, watermarkedUrl: null });
+          renderGallery();
+          if (!selectedId) selectImage(id);
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderGallery() {
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = images.map(img => `
+      <div class="thumb-wrap">
+        <img src="${img.dataUrl}" class="thumb${img.id === selectedId ? ' active' : ''}" onclick="selectImage(${img.id})" title="${img.name}" />
+        <button class="thumb-del" onclick="removeImage(${img.id})" title="Remove">✕</button>
+      </div>
+    `).join('');
+    const count = document.getElementById('galleryCount');
+    count.classList.toggle('hidden', images.length === 0);
+    count.textContent = `${images.length} image${images.length !== 1 ? 's' : ''} loaded`;
+    updateActionButtons();
+    updateImageNav();
+  }
+
+  function removeImage(id) {
+    const idx = images.findIndex(i => i.id === id);
+    images.splice(idx, 1);
+    if (selectedId === id) {
+      selectedId = images.length ? images[Math.min(idx, images.length - 1)].id : null;
+    }
+    renderGallery();
+    if (selectedId) { selectImage(selectedId); } else { showEmpty(); }
+  }
+
+  function selectImage(id) {
+    selectedId = id;
+    renderGallery();
+    const img = images.find(i => i.id === id);
+    if (!img) return;
+    document.getElementById('previewEmpty').classList.add('hidden');
+    document.getElementById('previewPanel').classList.remove('hidden');
+    document.getElementById('previewFilename').textContent = img.name;
+    document.getElementById('previewDimensions').textContent = `${img.naturalW} × ${img.naturalH} px`;
+    renderPreview(img);
+  }
+
+  function showEmpty() {
+    document.getElementById('previewEmpty').classList.remove('hidden');
+    document.getElementById('previewPanel').classList.add('hidden');
+  }
+
+  function updateActionButtons() {
+    const has = images.length > 0;
+    document.getElementById('applyAllBtn').disabled = !has;
+    document.getElementById('downloadAllBtn').disabled = !images.some(i => i.watermarkedUrl);
+  }
+
+  function updateImageNav() {
+    const nav = document.getElementById('imageNav');
+    nav.classList.toggle('hidden', images.length <= 1);
+    const idx = images.findIndex(i => i.id === selectedId);
+    document.getElementById('imageNavText').textContent = `${idx + 1} / ${images.length}`;
+  }
+
+  function navImage(dir) {
+    const idx = images.findIndex(i => i.id === selectedId);
+    const next = (idx + dir + images.length) % images.length;
+    selectImage(images[next].id);
+  }
+
+  /* ═══════════════════════════════════════════
+     WATERMARK RENDERING
+  ═══════════════════════════════════════════ */
+  function renderPreview(imgData) {
+    const src = new Image();
+    src.onload = () => {
+      const canvas = document.getElementById('previewCanvas');
+      canvas.width  = imgData.naturalW;
+      canvas.height = imgData.naturalH;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(src, 0, 0);
+      applyWatermarkToCtx(ctx, canvas.width, canvas.height);
+
+      document.getElementById('previewStatus').textContent = 'Preview';
+      document.getElementById('previewStatus').className = 'text-xs bg-rose/20 text-deep-rose font-semibold px-2.5 py-1 rounded-full';
+    };
+    src.src = imgData.dataUrl;
+  }
+
+  function applyWatermarkToCtx(ctx, W, H) {
+    const scale     = Math.min(W, H);
+    const fontSize  = Math.round(scale * TEXT_SIZES[S.textSize - 1]);
+    const logoW     = Math.round(scale * LOGO_SIZES[S.logoSize - 1]);
+    const logoH     = LOGO.complete && LOGO.naturalWidth
+      ? Math.round(logoW * (LOGO.naturalHeight / LOGO.naturalWidth))
+      : logoW;
+    const padding   = Math.round(Math.min(W, H) * 0.03);
+
+    if (S.mode === 'tile') {
+      drawTiled(ctx, W, H, fontSize, logoW, logoH, padding);
+    } else {
+      drawSingle(ctx, W, H, fontSize, logoW, logoH, padding);
+    }
+  }
+
+  function drawSingle(ctx, W, H, fontSize, logoW, logoH, padding) {
+    ctx.save();
+    ctx.globalAlpha = S.opacity / 100;
+
+    let totalW = 0, totalH = 0;
+
+    if (S.wmType === 'text' || S.wmType === 'both') {
+      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+      totalW = Math.max(totalW, ctx.measureText(S.text).width);
+      totalH += fontSize;
+    }
+    if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete) {
+      totalW = Math.max(totalW, logoW);
+      totalH += (S.wmType === 'both' ? logoH + Math.round(fontSize * 0.3) : logoH);
+    }
+
+    const pos = calcPos(W, H, totalW, totalH, S.position, padding);
+    let curY = pos.y;
+
+    // Draw logo
+    if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete && LOGO.naturalWidth) {
+      const lx = pos.x + (totalW - logoW) / 2;
+      if (S.logoMultiply) ctx.globalCompositeOperation = 'multiply';
+      ctx.drawImage(LOGO, lx, curY, logoW, logoH);
+      ctx.globalCompositeOperation = 'source-over';
+      curY += logoH + Math.round(fontSize * 0.3);
+    }
+
+    // Draw text
+    if (S.wmType === 'text' || S.wmType === 'both') {
+      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+      const tw = ctx.measureText(S.text).width;
+      const tx = pos.x + (totalW - tw) / 2;
+      const ty = curY + fontSize;
+
+      if (S.textBox) {
+        const bpad = fontSize * 0.3;
+        ctx.globalAlpha = (S.opacity / 100) * 0.55;
+        ctx.fillStyle = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
+        ctx.beginPath();
+        ctx.roundRect(tx - bpad, ty - fontSize - bpad * 0.5, tw + bpad * 2, fontSize + bpad * 1.5, fontSize * 0.2);
+        ctx.fill();
+        ctx.globalAlpha = S.opacity / 100;
+      }
+
+      ctx.fillStyle = S.colorHex;
+      ctx.shadowColor = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)';
+      ctx.shadowBlur = fontSize * 0.35;
+      ctx.fillText(S.text, tx, ty);
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.restore();
+  }
+
+  function drawTiled(ctx, W, H, fontSize, logoW, logoH, padding) {
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(-25 * Math.PI / 180);
+    ctx.globalAlpha = S.opacity / 100;
+
+    const diag = Math.ceil(Math.sqrt(W * W + H * H)) + Math.max(logoW, fontSize * 10);
+
+    // Measure one unit
+    let unitW = 0, unitH = 0;
+    if (S.wmType === 'text' || S.wmType === 'both') {
+      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+      unitW = Math.max(unitW, ctx.measureText(S.text).width);
+      unitH += fontSize;
+    }
+    if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete && LOGO.naturalWidth) {
+      unitW = Math.max(unitW, logoW);
+      unitH += logoH + (S.wmType === 'both' ? Math.round(fontSize * 0.3) : 0);
+    }
+
+    const gapX = unitW * 1.8;
+    const gapY = unitH + fontSize * 2;
+
+    for (let tx = -diag; tx < diag; tx += unitW + gapX) {
+      for (let ty = -diag; ty < diag; ty += gapY) {
+        let cy = ty;
+
+        if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete && LOGO.naturalWidth) {
+          if (S.logoMultiply) { ctx.globalCompositeOperation = 'multiply'; }
+          ctx.drawImage(LOGO, tx, cy, logoW, logoH);
+          ctx.globalCompositeOperation = 'source-over';
+          cy += logoH + Math.round(fontSize * 0.3);
+        }
+
+        if (S.wmType === 'text' || S.wmType === 'both') {
+          ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+          ctx.fillStyle = S.colorHex;
+          ctx.shadowColor = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
+          ctx.shadowBlur = fontSize * 0.3;
+          ctx.fillText(S.text, tx, cy + fontSize);
+          ctx.shadowBlur = 0;
+        }
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function calcPos(W, H, wmW, wmH, pos, padding) {
+    const map = {
+      tl: { x: padding,                  y: padding },
+      tc: { x: (W - wmW) / 2,            y: padding },
+      tr: { x: W - wmW - padding,        y: padding },
+      ml: { x: padding,                  y: (H - wmH) / 2 },
+      mc: { x: (W - wmW) / 2,            y: (H - wmH) / 2 },
+      mr: { x: W - wmW - padding,        y: (H - wmH) / 2 },
+      bl: { x: padding,                  y: H - wmH - padding },
+      bc: { x: (W - wmW) / 2,            y: H - wmH - padding },
+      br: { x: W - wmW - padding,        y: H - wmH - padding },
+    };
+    return map[pos] || map.br;
+  }
+
+  /* ═══════════════════════════════════════════
+     APPLY ALL + DOWNLOAD
+  ═══════════════════════════════════════════ */
+  async function applyAll() {
+    if (!images.length) return;
+    const btn = document.getElementById('applyAllBtn');
+    btn.disabled = true;
+    btn.textContent = 'Applying…';
+    document.getElementById('progressWrap').classList.remove('hidden');
+
+    for (let i = 0; i < images.length; i++) {
+      const img = images[i];
+      img.watermarkedUrl = await renderFull(img);
+      const pct = Math.round(((i + 1) / images.length) * 100);
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `${i + 1} / ${images.length} processed`;
+      if (img.id === selectedId) {
+        selectImage(img.id);
+        document.getElementById('previewStatus').textContent = 'Watermarked ✓';
+        document.getElementById('previewStatus').className = 'text-xs bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-full';
+      }
+    }
+
+    btn.disabled = false;
+    btn.textContent = '✦ Apply to All Images';
+    document.getElementById('downloadAllBtn').disabled = false;
+    document.getElementById('downloadSingleBtn').disabled = false;
+    setTimeout(() => document.getElementById('progressWrap').classList.add('hidden'), 2000);
+  }
+
+  function renderFull(imgData) {
+    return new Promise(resolve => {
+      const src = new Image();
+      src.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width  = imgData.naturalW;
+        canvas.height = imgData.naturalH;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(src, 0, 0);
+        applyWatermarkToCtx(ctx, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.93));
+      };
+      src.src = imgData.dataUrl;
+    });
+  }
+
+  function downloadSingle() {
+    const img = images.find(i => i.id === selectedId);
+    if (!img || !img.watermarkedUrl) return;
+    triggerDownload(img.watermarkedUrl, 'wm_' + img.name.replace(/\.[^.]+$/, '.jpg'));
+  }
+
+  async function downloadAll() {
+    const toDownload = images.filter(i => i.watermarkedUrl);
+    for (let i = 0; i < toDownload.length; i++) {
+      const img = toDownload[i];
+      await new Promise(r => setTimeout(r, 200 * i));
+      triggerDownload(img.watermarkedUrl, 'wm_' + img.name.replace(/\.[^.]+$/, '.jpg'));
+    }
+  }
+
+  function triggerDownload(dataUrl, filename) {
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  /* ═══════════════════════════════════════════
+     SETTINGS CONTROLS
+  ═══════════════════════════════════════════ */
+
+  // Watermark type
+  document.querySelectorAll('[data-wm]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-wm]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      S.wmType = btn.dataset.wm;
+      document.getElementById('textSettings').classList.toggle('hidden', S.wmType === 'logo');
+      document.getElementById('logoSettings').classList.toggle('hidden', S.wmType === 'text');
+      schedulePreview();
+    });
+  });
+
+  // Mode
+  document.querySelectorAll('[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      S.mode = btn.dataset.mode;
+      document.getElementById('positionSection').classList.toggle('hidden', S.mode === 'tile');
+      schedulePreview();
+    });
+  });
+
+  // Position grid
+  document.querySelectorAll('.pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      S.position = btn.dataset.pos;
+      schedulePreview();
+    });
+  });
+
+  // Text input
+  document.getElementById('wmText').addEventListener('input', e => { S.text = e.target.value || 'LIKHA-ERA'; schedulePreview(); });
+
+  // Text size
+  document.getElementById('textSize').addEventListener('input', e => {
+    S.textSize = +e.target.value;
+    document.getElementById('textSizeVal').textContent = SIZE_LABELS[S.textSize - 1];
+    schedulePreview();
+  });
+
+  // Logo size
+  document.getElementById('logoSize').addEventListener('input', e => {
+    S.logoSize = +e.target.value;
+    document.getElementById('logoSizeVal').textContent = SIZE_LABELS[S.logoSize - 1];
+    schedulePreview();
+  });
+
+  // Color swatches
+  document.querySelectorAll('.swatch[data-color]').forEach(sw => {
+    sw.addEventListener('click', () => {
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+      S.color = sw.dataset.color;
+      S.colorHex = COLOR_MAP[S.color];
+      document.getElementById('customColor').value = S.colorHex;
+      schedulePreview();
+    });
+  });
+
+  // Custom color picker
+  document.getElementById('customColor').addEventListener('input', e => {
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    S.colorHex = e.target.value;
+    schedulePreview();
+  });
+
+  // Text box toggle
+  document.getElementById('textBox').addEventListener('change', e => { S.textBox = e.target.checked; schedulePreview(); });
+
+  // Logo multiply
+  document.getElementById('logoMultiply').addEventListener('change', e => { S.logoMultiply = e.target.checked; schedulePreview(); });
+
+  // Opacity
+  document.getElementById('wmOpacity').addEventListener('input', e => {
+    S.opacity = +e.target.value;
+    document.getElementById('opacityVal').textContent = S.opacity + '%';
+    schedulePreview();
+  });
+
+  function schedulePreview() {
+    clearTimeout(previewDebounce);
+    previewDebounce = setTimeout(() => {
+      const img = images.find(i => i.id === selectedId);
+      if (img) renderPreview(img);
+    }, 80);
+  }
+  </script>
+
+</body>
+</html>
