@@ -24,19 +24,27 @@ const server = http.createServer((req, res) => {
   try {
     const rawPath = req.url === '/' ? '/index.html' : req.url.split('?')[0];
     const decoded = decodeURIComponent(rawPath);
-    let filePath = path.join(__dirname, decoded);
+    const filePath = path.join(__dirname, decoded);
     const ext = path.extname(filePath).toLowerCase();
-    const contentType = mimeTypes[ext] || 'text/plain';
 
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
+    // Mirror Vercel cleanUrls: if no extension, try appending .html
+    const candidates = ext ? [filePath] : [filePath, filePath + '.html'];
+
+    const tryNext = (list) => {
+      if (!list.length) {
         res.writeHead(404);
         res.end('Not found');
         return;
       }
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(data);
-    });
+      fs.readFile(list[0], (err, data) => {
+        if (err) { tryNext(list.slice(1)); return; }
+        const contentType = mimeTypes[path.extname(list[0]).toLowerCase()] || 'text/plain';
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(data);
+      });
+    };
+
+    tryNext(candidates);
   } catch {
     res.writeHead(500);
     res.end('Server error');

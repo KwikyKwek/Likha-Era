@@ -12,14 +12,14 @@
       theme: {
         extend: {
           colors: {
-            cream:     '#FBF5EF',
-            blush:     '#F8EBF1',
-            rose:      '#E8A4BE',
+            cream:      '#FBF5EF',
+            blush:      '#F8EBF1',
+            rose:       '#E8A4BE',
             'deep-rose':'#A83D5A',
-            burgundy:  '#3D1A26',
-            taupe:     '#9B8090',
-            sand:      '#EDE5DC',
-            dark:      '#2A1520',
+            burgundy:   '#3D1A26',
+            taupe:      '#9B8090',
+            sand:       '#EDE5DC',
+            dark:       '#2A1520',
           },
           fontFamily: {
             display: ['"Cormorant Garamond"', 'serif'],
@@ -34,25 +34,29 @@
     body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FBF5EF; }
     h1,h2,h3,h4 { font-family: 'Cormorant Garamond', serif; }
 
-    /* grain overlay */
     body::after {
       content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
       background-size: 160px; opacity: .18;
     }
 
-    /* input styling */
     .form-input {
       width: 100%; padding: .625rem .875rem; border-radius: 10px;
       border: 1.5px solid #EDE5DC; background: white; color: #2A1520;
       font-family: 'Plus Jakarta Sans', sans-serif; font-size: .875rem;
       transition: border-color .2s, box-shadow .2s; outline: none;
     }
-    .form-input:focus {
-      border-color: #E8A4BE;
-      box-shadow: 0 0 0 3px rgba(232,164,190,.18);
+    .form-input:focus { border-color: #E8A4BE; box-shadow: 0 0 0 3px rgba(232,164,190,.18); }
+    textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+    /* post type pills */
+    .type-pill {
+      padding: .5rem .75rem; border-radius: 10px; font-size: .78rem; font-weight: 600;
+      border: 1.5px solid #EDE5DC; background: white; color: #9B8090;
+      cursor: pointer; transition: all .2s; user-select: none; text-align: left; width: 100%;
     }
-    textarea.form-input { resize: vertical; min-height: 90px; line-height: 1.6; }
+    .type-pill.active { background: #3D1A26; border-color: #3D1A26; color: white; }
+    .type-pill:hover:not(.active) { border-color: #E8A4BE; color: #A83D5A; }
 
     /* tone pills */
     .tone-pill {
@@ -63,7 +67,6 @@
     .tone-pill.active { background: #A83D5A; border-color: #A83D5A; color: white; box-shadow: 0 4px 14px rgba(168,61,90,.25); }
     .tone-pill:hover:not(.active) { border-color: #E8A4BE; color: #A83D5A; }
 
-    /* toggle switch */
     .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
     .toggle input { opacity: 0; width: 0; height: 0; }
     .toggle-track {
@@ -78,7 +81,6 @@
     }
     .toggle input:checked + .toggle-track::after { transform: translateX(20px); }
 
-    /* output card */
     .output-card {
       background: white; border-radius: 16px; border: 1.5px solid #EDE5DC;
       box-shadow: 0 2px 12px rgba(168,61,90,.06);
@@ -86,14 +88,12 @@
     }
     .output-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(168,61,90,.12); }
 
-    /* platform badge */
     .platform-badge {
       display: inline-flex; align-items: center; gap: .35rem;
       padding: .25rem .75rem; border-radius: 100px; font-size: .75rem; font-weight: 700;
       letter-spacing: .4px; text-transform: uppercase;
     }
 
-    /* copy button */
     .copy-btn {
       display: inline-flex; align-items: center; gap: .35rem;
       padding: .35rem .85rem; border-radius: 8px; font-size: .78rem; font-weight: 600;
@@ -103,7 +103,6 @@
     .copy-btn:hover { border-color: #A83D5A; color: #A83D5A; }
     .copy-btn.copied { background: #A83D5A; border-color: #A83D5A; color: white; }
 
-    /* generate button */
     .generate-btn {
       width: 100%; padding: .875rem; border-radius: 12px; font-size: 1rem; font-weight: 700;
       background: linear-gradient(135deg, #A83D5A 0%, #C1527A 100%);
@@ -115,13 +114,8 @@
     .generate-btn:active { transform: scale(.97); }
     .generate-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-    /* output text */
-    .output-text {
-      font-size: .875rem; line-height: 1.75; color: #2A1520;
-      white-space: pre-wrap; word-break: break-word;
-    }
+    .output-text { font-size: .875rem; line-height: 1.75; color: #2A1520; white-space: pre-wrap; word-break: break-word; }
 
-    /* shimmer skeleton */
     @keyframes shimmer {
       0%   { background-position: -400px 0; }
       100% { background-position: 400px 0; }
@@ -131,11 +125,8 @@
       background-size: 400px 100%; animation: shimmer 1.4s ease infinite;
       border-radius: 6px;
     }
-
-    /* empty state */
     .empty-state { text-align: center; padding: 4rem 2rem; }
 
-    /* scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #EDE5DC; border-radius: 3px; }
@@ -144,13 +135,10 @@
 </head>
 <body class="min-h-screen">
 
-  <!-- ═══ NAV ═══════════════════════════════════════════ -->
   <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-sand">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
       <div class="flex items-center gap-3">
-        <a href="index.html" class="text-taupe hover:text-deep-rose transition-colors text-sm font-medium flex items-center gap-1.5">
-          ← Back to Site
-        </a>
+        <a href="index.html" class="text-taupe hover:text-deep-rose transition-colors text-sm font-medium flex items-center gap-1.5">← Back to Site</a>
         <span class="text-sand">·</span>
         <span class="font-display text-lg font-semibold text-dark">Content Studio</span>
       </div>
@@ -158,7 +146,6 @@
     </div>
   </nav>
 
-  <!-- ═══ HERO ══════════════════════════════════════════ -->
   <div class="bg-gradient-to-br from-blush via-cream to-white border-b border-sand">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -166,57 +153,118 @@
           <h1 class="font-display text-3xl sm:text-4xl font-light text-dark leading-tight">
             Social Media <em class="italic text-deep-rose">Content Studio</em>
           </h1>
-          <p class="text-taupe text-sm mt-1.5">Generate platform-ready captions, hashtags, and taglines for LIKHA-ERA products.</p>
+          <p class="text-taupe text-sm mt-1.5">Generate platform-ready captions for promotions, BTS, before & after, and thank-you posts.</p>
         </div>
-        <div class="flex gap-2 text-xs font-semibold">
-          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">📘 Facebook</span>
-          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">📸 Instagram</span>
-          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">🎵 TikTok</span>
+        <div class="flex flex-wrap gap-2 text-xs font-semibold">
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">🛒 Promotional</span>
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">🎬 Behind the Scenes</span>
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">✨ Before &amp; After</span>
+          <span class="bg-white px-3 py-1.5 rounded-full border border-sand text-taupe">💕 Thank You</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══ MAIN LAYOUT ═══════════════════════════════════ -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
     <div class="flex flex-col lg:flex-row gap-6">
 
-      <!-- ── LEFT: INPUT PANEL ──────────────────────── -->
+      <!-- LEFT PANEL -->
       <aside class="lg:w-80 xl:w-96 flex-shrink-0">
         <div class="lg:sticky lg:top-20 bg-white rounded-2xl border border-sand shadow-sm p-5 sm:p-6 space-y-5">
 
           <div>
             <h2 class="font-display text-xl font-semibold text-dark mb-0.5">Your Details</h2>
-            <p class="text-xs text-taupe">Fill in the fields below to generate content.</p>
+            <p class="text-xs text-taupe">Choose a post type, fill in the fields, then generate.</p>
           </div>
 
-          <!-- Product Type -->
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Type</label>
-            <div class="relative">
-              <select id="productType" class="form-input appearance-none pr-8 cursor-pointer">
-                <option value="" disabled selected>Select a product…</option>
-                <option value="sticker sheet">Sticker Sheet</option>
-                <option value="bookmark">Bookmark</option>
-                <option value="keychain">Keychain</option>
-                <option value="custom art design">Custom Art Design</option>
-              </select>
-              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-taupe pointer-events-none text-xs">▾</span>
+          <!-- Post Type -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-dark uppercase tracking-wider">Post Type</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="type-pill active" data-type="promo">🛒 Promotional</button>
+              <button class="type-pill" data-type="bts">🎬 Behind the Scenes</button>
+              <button class="type-pill" data-type="beforeafter">✨ Before &amp; After</button>
+              <button class="type-pill" data-type="thankyou">💕 Thank You</button>
             </div>
           </div>
 
-          <!-- Theme / Style -->
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-dark uppercase tracking-wider">Theme / Style</label>
-            <input type="text" id="theme" class="form-input" placeholder="e.g. pastel kawaii, dark academia…" />
-            <p class="text-xs text-taupe">The visual vibe of the product.</p>
+          <hr class="border-sand" />
+
+          <!-- ── PROMO INPUTS ── -->
+          <div class="input-group space-y-4" data-group="promo">
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Type</label>
+              <div class="relative">
+                <select id="productType" class="form-input appearance-none pr-8 cursor-pointer">
+                  <option value="" disabled selected>Select a product…</option>
+                  <option value="sticker sheet">Sticker Sheet</option>
+                  <option value="bookmark">Bookmark</option>
+                  <option value="keychain">Keychain</option>
+                  <option value="custom art design">Custom Art Design</option>
+                </select>
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-taupe pointer-events-none text-xs">▾</span>
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Theme / Style</label>
+              <input type="text" id="theme" class="form-input" placeholder="e.g. pastel kawaii, dark academia…" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Promotion Details <span class="text-taupe font-normal normal-case">(optional)</span></label>
+              <textarea id="promoDetails" class="form-input" placeholder="e.g. 15% off this weekend, free shipping on ₱300+…"></textarea>
+            </div>
           </div>
 
-          <!-- Promotion Details -->
-          <div class="space-y-1.5">
-            <label class="text-xs font-bold text-dark uppercase tracking-wider">Promotion Details <span class="text-taupe font-normal normal-case">(optional)</span></label>
-            <textarea id="promoDetails" class="form-input" placeholder="e.g. 15% off this weekend only, free shipping on orders ₱300+…"></textarea>
+          <!-- ── BTS INPUTS ── -->
+          <div class="input-group hidden space-y-4" data-group="bts">
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">What You're Working On</label>
+              <input type="text" id="btsWorkingOn" class="form-input" placeholder="e.g. keychain orders, sticker batch…" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Current Process Step</label>
+              <input type="text" id="btsProcess" class="form-input" placeholder="e.g. sketching, printing, packaging…" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Fun Fact / Detail <span class="text-taupe font-normal normal-case">(optional)</span></label>
+              <textarea id="btsFunFact" class="form-input" placeholder="e.g. Each sticker is individually cut by hand!"></textarea>
+            </div>
           </div>
+
+          <!-- ── BEFORE & AFTER INPUTS ── -->
+          <div class="input-group hidden space-y-4" data-group="beforeafter">
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Customer Reference</label>
+              <input type="text" id="baCustomer" class="form-input" placeholder="e.g. @username, a sweet customer…" />
+              <p class="text-xs text-taupe">Use "a sweet customer" for privacy.</p>
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Product / Item</label>
+              <input type="text" id="baProduct" class="form-input" placeholder="e.g. keychain, sticker sheet…" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Art Style / Theme <span class="text-taupe font-normal normal-case">(optional)</span></label>
+              <input type="text" id="baTheme" class="form-input" placeholder="e.g. pastel anime, chibi…" />
+            </div>
+          </div>
+
+          <!-- ── THANK YOU INPUTS ── -->
+          <div class="input-group hidden space-y-4" data-group="thankyou">
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Customer Name</label>
+              <input type="text" id="tyCustomer" class="form-input" placeholder="e.g. @username, a sweet customer…" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Product Ordered</label>
+              <input type="text" id="tyProduct" class="form-input" placeholder="e.g. custom keychain, sticker sheet…" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Special Message / Next-Order Promo <span class="text-taupe font-normal normal-case">(optional)</span></label>
+              <textarea id="tyPromo" class="form-input" placeholder="e.g. Use code THANKYOU for 10% off your next order!"></textarea>
+            </div>
+          </div>
+
+          <hr class="border-sand" />
 
           <!-- Tone -->
           <div class="space-y-2">
@@ -241,36 +289,26 @@
             </label>
           </div>
 
-          <!-- Generate Button -->
-          <button class="generate-btn" id="generateBtn" onclick="generateAll()">
-            ✦ Generate Content
-          </button>
-
-          <!-- Quick tip -->
+          <button class="generate-btn" id="generateBtn" onclick="generateAll()">✦ Generate Content</button>
           <p class="text-xs text-taupe text-center">Hit generate again for fresh variations ↺</p>
 
         </div>
       </aside>
 
-      <!-- ── RIGHT: OUTPUT PANEL ─────────────────────── -->
+      <!-- RIGHT PANEL -->
       <main class="flex-1 min-w-0">
 
-        <!-- Empty state -->
         <div id="emptyState" class="empty-state">
           <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blush flex items-center justify-center text-3xl">✦</div>
           <h3 class="font-display text-2xl text-dark mb-2">Ready to create</h3>
-          <p class="text-taupe text-sm max-w-xs mx-auto">Fill in your product details on the left and click <strong>Generate Content</strong> to get platform-ready captions.</p>
+          <p class="text-taupe text-sm max-w-xs mx-auto">Choose a post type, fill in your details, and click <strong>Generate Content</strong>.</p>
         </div>
 
-        <!-- Output grid (hidden until generated) -->
         <div id="outputGrid" class="hidden space-y-4">
 
-          <!-- Regenerate all bar -->
           <div class="flex items-center justify-between bg-blush rounded-xl px-4 py-3">
-            <p class="text-sm font-semibold text-dark">6 pieces of content generated</p>
-            <button onclick="generateAll()" class="text-xs font-bold text-deep-rose hover:text-burgundy transition-colors flex items-center gap-1">
-              ↺ Regenerate All
-            </button>
+            <p class="text-sm font-semibold text-dark" id="countBarText">Content generated</p>
+            <button onclick="generateAll()" class="text-xs font-bold text-deep-rose hover:text-burgundy transition-colors flex items-center gap-1">↺ Regenerate All</button>
           </div>
 
           <!-- Facebook -->
@@ -278,15 +316,11 @@
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
               <span class="platform-badge bg-blue-50 text-blue-600">📘 Facebook</span>
               <div class="flex items-center gap-2">
-                <button class="copy-btn" onclick="copyText('facebook')">
-                  <span>Copy</span>
-                </button>
+                <button class="copy-btn" onclick="copyText('facebook')"><span>Copy</span></button>
                 <button onclick="regenerateSingle('facebook')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
               </div>
             </div>
-            <div class="px-5 py-4">
-              <p class="output-text" id="out-facebook"></p>
-            </div>
+            <div class="px-5 py-4"><p class="output-text" id="out-facebook"></p></div>
           </div>
 
           <!-- Instagram -->
@@ -294,15 +328,11 @@
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
               <span class="platform-badge bg-pink-50 text-pink-600">📸 Instagram</span>
               <div class="flex items-center gap-2">
-                <button class="copy-btn" onclick="copyText('instagram')">
-                  <span>Copy</span>
-                </button>
+                <button class="copy-btn" onclick="copyText('instagram')"><span>Copy</span></button>
                 <button onclick="regenerateSingle('instagram')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
               </div>
             </div>
-            <div class="px-5 py-4">
-              <p class="output-text" id="out-instagram"></p>
-            </div>
+            <div class="px-5 py-4"><p class="output-text" id="out-instagram"></p></div>
           </div>
 
           <!-- TikTok -->
@@ -310,25 +340,19 @@
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
               <span class="platform-badge bg-gray-900 text-white">🎵 TikTok</span>
               <div class="flex items-center gap-2">
-                <button class="copy-btn" onclick="copyText('tiktok')">
-                  <span>Copy</span>
-                </button>
+                <button class="copy-btn" onclick="copyText('tiktok')"><span>Copy</span></button>
                 <button onclick="regenerateSingle('tiktok')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
               </div>
             </div>
-            <div class="px-5 py-4">
-              <p class="output-text" id="out-tiktok"></p>
-            </div>
+            <div class="px-5 py-4"><p class="output-text" id="out-tiktok"></p></div>
           </div>
 
-          <!-- Hashtags -->
+          <!-- Hashtags (promo / bts / beforeafter) -->
           <div class="output-card" id="card-hashtags">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
               <span class="platform-badge bg-rose-50 text-deep-rose"># Hashtags</span>
               <div class="flex items-center gap-2">
-                <button class="copy-btn" onclick="copyText('hashtags')">
-                  <span>Copy</span>
-                </button>
+                <button class="copy-btn" onclick="copyText('hashtags')"><span>Copy</span></button>
                 <button onclick="regenerateSingle('hashtags')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
               </div>
             </div>
@@ -338,39 +362,45 @@
             </div>
           </div>
 
-          <!-- Product Description -->
+          <!-- Product Description (promo only) -->
           <div class="output-card" id="card-description">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
               <span class="platform-badge bg-amber-50 text-amber-700">📝 Product Description</span>
               <div class="flex items-center gap-2">
-                <button class="copy-btn" onclick="copyText('description')">
-                  <span>Copy</span>
-                </button>
+                <button class="copy-btn" onclick="copyText('description')"><span>Copy</span></button>
                 <button onclick="regenerateSingle('description')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
               </div>
             </div>
-            <div class="px-5 py-4">
-              <p class="output-text" id="out-description"></p>
-            </div>
+            <div class="px-5 py-4"><p class="output-text" id="out-description"></p></div>
           </div>
 
-          <!-- Tagline -->
+          <!-- Tagline (promo only) -->
           <div class="output-card" id="card-tagline">
             <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
               <span class="platform-badge bg-purple-50 text-purple-600">✦ Promo Tagline</span>
               <div class="flex items-center gap-2">
-                <button class="copy-btn" onclick="copyText('tagline')">
-                  <span>Copy</span>
-                </button>
+                <button class="copy-btn" onclick="copyText('tagline')"><span>Copy</span></button>
                 <button onclick="regenerateSingle('tagline')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
               </div>
             </div>
+            <div class="px-5 py-4"><p class="output-text text-xl font-display italic text-deep-rose" id="out-tagline"></p></div>
+          </div>
+
+          <!-- Personal Message (thankyou only) -->
+          <div class="output-card hidden" id="card-specialmessage">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-sand">
+              <span class="platform-badge bg-pink-50 text-pink-600">💌 Personal Message</span>
+              <div class="flex items-center gap-2">
+                <button class="copy-btn" onclick="copyText('specialmessage')"><span>Copy</span></button>
+                <button onclick="regenerateSingle('specialmessage')" class="text-taupe hover:text-deep-rose transition-colors text-sm" title="Regenerate">↺</button>
+              </div>
+            </div>
             <div class="px-5 py-4">
-              <p class="output-text text-xl font-display italic text-deep-rose" id="out-tagline"></p>
+              <p class="text-xs text-taupe mb-3 bg-blush rounded-lg px-3 py-2">DM template — send directly to your customer after their order.</p>
+              <p class="output-text" id="out-specialmessage"></p>
             </div>
           </div>
 
-          <!-- Copy All -->
           <button onclick="copyAll()" id="copyAllBtn"
             class="w-full py-3.5 rounded-xl border-2 border-dashed border-rose text-deep-rose font-bold text-sm
                    hover:bg-blush transition-colors flex items-center justify-center gap-2">
@@ -382,121 +412,385 @@
     </div>
   </div>
 
-
   <script>
   /* ═══════════════════════════════════════════════════════
      TEMPLATE LIBRARY
-     Each key has 3 variants per tone so Regenerate gives
-     fresh results. Tokens: {product} {theme} {promo}
   ═══════════════════════════════════════════════════════ */
   const T = {
-    facebook: {
-      cute: [
-        "New drop alert!! 🎀✨ Our {theme} {product} is HERE and it's giving everything 😭💕\n\n{promo}\n\nShop via Shopee or slide into our DMs! 🛒",
-        "Okay but have you SEEN our new {theme} {product}?? 🥺✨ I'm in love\n\n{promo} 🎀\n\nGet yours before slots close!! 💕",
-        "POV: you just found the cutest {product} shop 😭🎀\n\n{theme} vibes incoming~~ {promo} ✨\n\nTap the link in bio or DM us!! 💕🛒",
-      ],
-      trendy: [
-        "that {theme} {product} aesthetic you didn't know you needed 👀✨\n\n{promo} — link in bio!\n\n🛒 Shopee · TikTok Shop",
-        "new era loading... ✨ {theme} {product} just dropped and it's giving everything 🔥\n\n{promo}\n\nShop now before it's gone 👀",
-        "{theme} {product} and I'm not taking constructive criticism 😌✨\n\n{promo}\n\nTrust us on this one 🫶 Link in bio!",
-      ],
-      professional: [
-        "Introducing our {theme} {product} — handcrafted with love and attention to detail.\n\n{promo}\n\nVisit our Shopee and TikTok Shop to place your order. ✦",
-        "Looking for the perfect personalized {product}? Our {theme} collection is now available!\n\n{promo}\n\nDM us or shop directly via Shopee. ✦",
-        "Quality craftsmanship meets artistic expression in our {theme} {product} series.\n\n{promo}\n\nOrder yours today — limited slots available! ✦",
-      ],
-      minimalist: [
-        "{theme} {product}.\n\nCustom made. {promo}",
-        "New: {theme} {product}.\n\n{promo}\n\nShop via Shopee.",
-        "{product}. {theme}. Yours.\n\n{promo}",
-      ],
+
+    /* ── PROMOTIONAL ── */
+    promo: {
+      facebook: {
+        cute: [
+          "New drop alert!! 🎀✨ Our {theme} {product} is HERE and it's giving everything 😭💕\n\n{promo}\n\nShop via Shopee or slide into our DMs! 🛒",
+          "Okay but have you SEEN our new {theme} {product}?? 🥺✨ I'm in love\n\n{promo} 🎀\n\nGet yours before slots close!! 💕",
+          "POV: you just found the cutest {product} shop 😭🎀\n\n{theme} vibes incoming~~ {promo} ✨\n\nTap the link in bio or DM us!! 💕🛒",
+        ],
+        trendy: [
+          "that {theme} {product} aesthetic you didn't know you needed 👀✨\n\n{promo} — link in bio!\n\n🛒 Shopee · TikTok Shop",
+          "new era loading... ✨ {theme} {product} just dropped and it's giving everything 🔥\n\n{promo}\n\nShop now before it's gone 👀",
+          "{theme} {product} and I'm not taking constructive criticism 😌✨\n\n{promo}\n\nTrust us on this one 🫶 Link in bio!",
+        ],
+        professional: [
+          "Introducing our {theme} {product} — handcrafted with love and attention to detail.\n\n{promo}\n\nVisit our Shopee and TikTok Shop to place your order. ✦",
+          "Looking for the perfect personalized {product}? Our {theme} collection is now available!\n\n{promo}\n\nDM us or shop directly via Shopee. ✦",
+          "Quality craftsmanship meets artistic expression in our {theme} {product} series.\n\n{promo}\n\nOrder yours today — limited slots available! ✦",
+        ],
+        minimalist: [
+          "{theme} {product}.\n\nCustom made. {promo}",
+          "New: {theme} {product}.\n\n{promo}\n\nShop via Shopee.",
+          "{product}. {theme}. Yours.\n\n{promo}",
+        ],
+      },
+      instagram: {
+        cute: [
+          "new fave unlocked ✨🎀\n\nour {theme} {product} collection is HERE and it's too cute 😭💕\n\n{promo} — tap the link in bio!\n\n#likhaera #kawaii #cute #aesthetic #handmade",
+          "POV: you just found the most adorable {product} shop 🥺💕\n\n{theme} vibes only ✨ {promo}\n\n🎀 shop via link in bio!\n\n#likhaera #{productTag}love #cuteaesthetic #shopph",
+          "okay but have you seen our {theme} {product}?? 😭✨\n\nthey're SO pretty I can't 💕🎀\n\n{promo} — link in bio bestie!\n\n#likhaera #aesthetic #cute #handmade",
+        ],
+        trendy: [
+          "POV: you just found the most aesthetic {product} shop 👀✨\n\n{theme} era has arrived. {promo}\n\n🛒 link in bio!\n\n#aesthetic #likhaera #fyp #viral",
+          "not me obsessing over these {theme} {product}s 👀🔥\n\n{promo} — the link in bio is calling your name\n\n#likhaera #trendy #viral #artshop",
+          "{theme} {product} and I'm not taking constructive criticism 😌✨\n\n{promo}\n\n🛒 link in bio #likhaera #aesthetic #maincharacter",
+        ],
+        professional: [
+          "Elevate your everyday with our custom {theme} {product}. Every piece tells a story.\n\n{promo}\n\n📦 Order via link in bio.\n\n#likhaera #custom{productTag} #handmade #smallbusiness",
+          "Where artistry meets personalization. Our {theme} {product} collection brings your vision to life.\n\n{promo}\n\n✨ Shop via Shopee · Link in bio\n\n#likhaera #custommade #artshop #shopph",
+          "Made with love, designed for you. Our {theme} {product} series is everything you've been looking for.\n\n{promo}\n\n🛒 Link in bio · Limited slots!\n\n#likhaera #handmade #personalizedgifts #philippines",
+        ],
+        minimalist: [
+          "{theme} {product}\ncustom made / made to order\n\n{promo}\n\n#likhaera #{productTag}",
+          "custom {product}\n{theme} aesthetic\n\n{promo}\n\n#likhaera #minimalist",
+          "{product}. {theme}.\nmade for you.\n\n{promo}\n\n#likhaera",
+        ],
+      },
+      tiktok: {
+        cute: [
+          "pov: ordering the most adorable {theme} {product} 🎀✨ {promo} #likhaera #cute #fyp #{productTag}",
+          "this {theme} {product} is sending me 😭💕 {promo} #likhaera #kawaii #fyp #aesthetic",
+          "NOT me crying over how cute these {theme} {product}s are 🥺✨ {promo} #likhaera #cute #fyp",
+        ],
+        trendy: [
+          "{theme} {product} era loading... 🔄✨ {promo} #fyp #viral #likhaera #{productTag}",
+          "no one talk to me I'm in my {theme} {product} era 🔥✨ {promo} #fyp #likhaera",
+          "that {theme} {product} aesthetic goes crazy 👀🔥 {promo} #fyp #viral #likhaera",
+        ],
+        professional: [
+          "Custom {theme} {product} made with love ✨ {promo} #LIKHAERA #custom{productTag} #smallbusiness #philippines",
+          "Quality {theme} {product} — personalized just for you! {promo} #likhaera #{productTag} #handmade #shopph",
+          "Your perfect {theme} {product} is just one order away ✨ {promo} #likhaera #custommade #{productTag}shop",
+        ],
+        minimalist: [
+          "custom {product} / {theme} vibes ✦ {promo} #likhaera #aesthetic",
+          "{theme} {product}. custom made. {promo} #likhaera",
+          "new: {theme} {product} ✦ {promo} #likhaera #minimal",
+        ],
+      },
+      hashtags: {
+        "sticker sheet": "#likhaera #customstickers #stickerpack #stickerart #kawaiistickers #cutestickers #stickershop #stickercommunity #smallbusiness #philippines #handmade #artshop #personalizedgifts",
+        "bookmark":      "#likhaera #custombookmarks #bookmarkcollection #bookmarks #bookstagram #readingaesthetic #booklovers #smallbusiness #philippines #handmade #artshop",
+        "keychain":      "#likhaera #customkeychain #keychainshop #beadedkeychain #kawaiikeychain #cutekeychain #keychain #smallbusiness #philippines #handmade #artshop",
+        "custom art design": "#likhaera #customart #commissions #customdesign #chibiart #fanart #personalizedgifts #artcommissions #smallbusiness #philippines #illustrationart",
+      },
+      description: {
+        cute: [
+          "The most adorable {theme} {product} you'll ever own 🎀 Made with love and lots of sparkle ✨ Custom orders welcome!",
+          "Super cute {theme} {product} that will make your heart melt!! 😭💕 Custom made just for you~",
+          "Your next fave {theme} {product} is HERE!! ✨ Kawaii vibes guaranteed 🎀 DM us to order!",
+        ],
+        trendy: [
+          "{theme} {product} that hits different 👀 Aesthetic, custom, and totally you ✨",
+          "The {theme} {product} aesthetic you've been looking for 🔥 Custom made, no cap.",
+          "{theme} {product} giving main character energy ✨ Custom, unique, iconic.",
+        ],
+        professional: [
+          "Premium quality {theme} {product}, handcrafted with care. Perfect as a personal treat or a thoughtful gift.",
+          "Our {theme} {product} collection features carefully crafted designs that bring your personality to life. Each piece is made to order.",
+          "Discover our {theme} {product} — where artistic vision meets quality craftsmanship. Custom orders welcome.",
+        ],
+        minimalist: [
+          "Custom {theme} {product}. Simple. Personal. Yours.",
+          "{theme} {product}. Made to order. Made for you.",
+          "Minimal design. Maximum meaning. {theme} {product}.",
+        ],
+      },
+      tagline: {
+        cute:         ["Making memories one {product} at a time! 🎀", "Cute things for cute people ✨💕", "Spreading joy, one custom piece at a time! 🌸", "Your aesthetic bestie 🎀✨"],
+        trendy:       ["Your aesthetic, our craft ✨", "Different by design 🔥", "Custom made, main character approved ✨", "Stand out. Stay cute. Shop LIKHA-ERA 🔥"],
+        professional: ["Where your story becomes art.", "Crafted with purpose, made for you.", "Artistry in every detail.", "Your vision, our craft."],
+        minimalist:   ["Custom. Crafted. Yours.", "Art for the intentional.", "Made with meaning.", "Simple. Personal. Perfect."],
+      },
     },
-    instagram: {
-      cute: [
-        "new fave unlocked ✨🎀\n\nour {theme} {product} collection is HERE and it's too cute 😭💕\n\n{promo} — tap the link in bio!\n\n#likhaera #kawaii #cute #aesthetic #handmade",
-        "POV: you just found the most adorable {product} shop 🥺💕\n\n{theme} vibes only ✨ {promo}\n\n🎀 shop via link in bio!\n\n#likhaera #{productTag}love #cuteaesthetic #shopph",
-        "okay but have you seen our {theme} {product}?? 😭✨\n\nthey're SO pretty I can't 💕🎀\n\n{promo} — link in bio bestie!\n\n#likhaera #aesthetic #cute #handmade",
-      ],
-      trendy: [
-        "POV: you just found the most aesthetic {product} shop 👀✨\n\n{theme} era has arrived. {promo}\n\n🛒 link in bio!\n\n#aesthetic #likhaera #fyp #viral",
-        "not me obsessing over these {theme} {product}s 👀🔥\n\n{promo} — the link in bio is calling your name\n\n#likhaera #trendy #viral #artshop",
-        "{theme} {product} and I'm not taking constructive criticism 😌✨\n\n{promo}\n\n🛒 link in bio #likhaera #aesthetic #maincharacter",
-      ],
-      professional: [
-        "Elevate your everyday with our custom {theme} {product}. Every piece tells a story — let us help you tell yours.\n\n{promo}\n\n📦 Order via link in bio.\n\n#likhaera #custom{productTag} #handmade #smallbusiness",
-        "Where artistry meets personalization. Our {theme} {product} collection brings your vision to life.\n\n{promo}\n\n✨ Shop via Shopee · Link in bio\n\n#likhaera #custommade #artshop #shopph",
-        "Made with love, designed for you. Our {theme} {product} series is everything you've been looking for.\n\n{promo}\n\n🛒 Link in bio · Limited slots!\n\n#likhaera #handmade #personalizedgifts #philippines",
-      ],
-      minimalist: [
-        "{theme} {product}\ncustom made / made to order\n\n{promo}\n\n#likhaera #{productTag}",
-        "custom {product}\n{theme} aesthetic\n\n{promo}\n\n#likhaera #minimalist",
-        "{product}. {theme}.\nmade for you.\n\n{promo}\n\n#likhaera",
-      ],
+
+    /* ── BEHIND THE SCENES ── */
+    bts: {
+      facebook: {
+        cute: [
+          "sneak peek into our workshop!! 🎀✨ currently in my {processStep} era for {workingOn} 💕 every single piece is made with so much love I can't\n\n{funFact}\n\nthank you for your patience!! it's always worth the wait 🥹💕",
+          "bts moment because you deserve to see the magic!! 🎀✨ catching me in {processStep} mode for {workingOn} 😭💕\n\n{funFact}\n\nthis is why I love what I do 🥹 sending love to everyone waiting for their orders!!",
+          "it's {processStep} o'clock and I'm fully in my element 🎀✨ working on {workingOn} and honestly? obsessed\n\n{funFact}\n\ncustom orders open!! DM us 💕🛒",
+        ],
+        trendy: [
+          "behind the scenes of your fave lil shop 👀✨ currently {processStep} for {workingOn} and it's looking SO good rn\n\n{funFact}\n\nstay tuned 🛒",
+          "{processStep} hours are lowkey my favorite 👀✨ {workingOn} is coming together nicely\n\n{funFact}\n\norders open if you're interested 🔥",
+          "no cap the {processStep} process for {workingOn} hits different when you love what you do ✨\n\n{funFact}\n\nshop via Shopee or DM us 👀🛒",
+        ],
+        professional: [
+          "A peek behind the curtain ✦ Currently in the {processStep} phase for {workingOn}.\n\n{funFact}\n\nEach order is given the same level of care and attention. Thank you for your continued support.",
+          "Process spotlight: {processStep} for {workingOn} ✦\n\n{funFact}\n\nQuality takes time — and we believe every piece is worth it.",
+          "Behind every order is a process rooted in craftsmanship ✦ Currently working on {workingOn} — {processStep} phase.\n\n{funFact}",
+        ],
+        minimalist: [
+          "{processStep} / {workingOn}\n\n{funFact}",
+          "currently: {processStep}.\nworking on: {workingOn}.\n\n{funFact}",
+          "{workingOn}. {processStep} phase.\n\n{funFact}",
+        ],
+      },
+      instagram: {
+        cute: [
+          "✨ bts time!! 🎀\n\ncurrently in my {processStep} era for {workingOn} and I am OBSESSED 😭💕\n\n{funFact}\n\nstay tuned besties 🎀✨\n\n#likhaera #behindthescenes #smallbusiness #handmade #artprocess",
+          "catching me mid-{processStep} for {workingOn} 🥺💕✨\n\nI love every part of this process sm 😭\n\n{funFact}\n\n🎀 link in bio for orders!\n\n#likhaera #bts #handmade #cute #artprocess",
+          "pov: me absolutely thriving during {processStep} for {workingOn} 🎀✨\n\nthis is my happy place fr 💕\n\n{funFact}\n\n#likhaera #behindthescenes #handmade #smallbusiness #cute",
+        ],
+        trendy: [
+          "{processStep} era and I'm thriving 👀✨\n\n{workingOn} is coming along so nicely rn 🔥\n\n{funFact}\n\norders open — link in bio!\n\n#likhaera #bts #artprocess #behindthescenes #fyp",
+          "the {processStep} process for {workingOn} goes crazy ngl 👀✨\n\n{funFact}\n\n🛒 link in bio\n\n#likhaera #behindthescenes #viral #artprocess",
+          "not me spending hours on {processStep} for {workingOn} and loving every second 👀🔥\n\n{funFact}\n\n#likhaera #bts #fyp #artprocess #smallbusiness",
+        ],
+        professional: [
+          "Process over perfection ✦\n\n{processStep} for {workingOn} — every detail is intentional.\n\n{funFact}\n\n📦 Orders open via link in bio.\n\n#likhaera #behindthescenes #artprocess #handmade #smallbusiness",
+          "A closer look at how {workingOn} comes to life ✦\n\nCurrently in {processStep}.\n\n{funFact}\n\n#likhaera #process #handcrafted #smallbusiness #philippines",
+          "The {processStep} stage of {workingOn} — where the magic starts ✦\n\n{funFact}\n\nDM us or visit the link in bio to order.\n\n#likhaera #behindthescenes #handmade #artprocess",
+        ],
+        minimalist: [
+          "{processStep} / {workingOn}\n\n{funFact}\n\n#likhaera #process",
+          "wip: {workingOn}\nstage: {processStep}\n\n{funFact}\n\n#likhaera #behindthescenes",
+          "{workingOn}. {processStep}.\n\n{funFact}\n\n#likhaera",
+        ],
+      },
+      tiktok: {
+        cute: [
+          "pov: me doing {processStep} for {workingOn} at midnight because I love this job 🎀✨ {funFact} #likhaera #behindthescenes #smallbusiness #fyp",
+          "catching me mid-{processStep} for {workingOn} 😭🎀 {funFact} #likhaera #bts #handmade #fyp",
+          "the {processStep} era for {workingOn} and I'm fully in my element 🥹🎀✨ {funFact} #likhaera #bts #cute #fyp",
+        ],
+        trendy: [
+          "{processStep} era and I'm thriving 👀✨ working on {workingOn} rn and it's looking crazy good {funFact} #likhaera #bts #fyp #viral",
+          "the {processStep} process for {workingOn} goes SO hard 🔥✨ {funFact} #likhaera #behindthescenes #fyp",
+          "no cap {processStep} for {workingOn} hits different when you're passionate about it 👀✨ {funFact} #likhaera #bts #fyp",
+        ],
+        professional: [
+          "Behind the scenes: {processStep} for {workingOn} ✦ {funFact} #likhaera #handmade #artprocess #smallbusiness",
+          "Process spotlight — {processStep} for {workingOn} ✦ {funFact} #likhaera #behindthescenes #handcrafted",
+          "{processStep} phase for {workingOn} ✦ Quality in every detail. {funFact} #likhaera #process #smallbusiness",
+        ],
+        minimalist: [
+          "{processStep} / {workingOn} ✦ {funFact} #likhaera",
+          "wip: {workingOn} / {processStep} ✦ {funFact} #likhaera #bts",
+          "{workingOn}. {processStep}. ✦ {funFact} #likhaera",
+        ],
+      },
+      hashtags: "#likhaera #behindthescenes #smallbusiness #handmade #artprocess #wip #workinprogress #philippines #smallbusinessowner #handcrafted #makersgonnamake #artworkprocess",
     },
-    tiktok: {
-      cute: [
-        "pov: ordering the most adorable {theme} {product} 🎀✨ {promo} #likhaera #cute #fyp #{productTag}",
-        "this {theme} {product} is sending me 😭💕 {promo} #likhaera #kawaii #fyp #aesthetic",
-        "NOT me crying over how cute these {theme} {product}s are 🥺✨ {promo} #likhaera #cute #fyp",
-      ],
-      trendy: [
-        "{theme} {product} era loading... 🔄✨ {promo} #fyp #viral #likhaera #{productTag}",
-        "no one talk to me I'm in my {theme} {product} era 🔥✨ {promo} #fyp #likhaera",
-        "that {theme} {product} aesthetic goes crazy 👀🔥 {promo} #fyp #viral #likhaera",
-      ],
-      professional: [
-        "Custom {theme} {product} made with love ✨ {promo} #LIKHAERA #custom{productTag} #smallbusiness #philippines",
-        "Quality {theme} {product} — personalized just for you! {promo} #likhaera #{productTag} #handmade #shopph",
-        "Your perfect {theme} {product} is just one order away ✨ {promo} #likhaera #custommade #{productTag}shop",
-      ],
-      minimalist: [
-        "custom {product} / {theme} vibes ✦ {promo} #likhaera #aesthetic",
-        "{theme} {product}. custom made. {promo} #likhaera",
-        "new: {theme} {product} ✦ {promo} #likhaera #minimal",
-      ],
+
+    /* ── BEFORE & AFTER ── */
+    beforeafter: {
+      facebook: {
+        cute: [
+          "BEFORE & AFTER and I am NOT okay 😭🎀✨ turned {customerRef}'s reference into the most precious {product} ever!!\n\nthe {theme} details came out so well I'm crying a little 🥹💕\n\nwant your own custom piece? DM us or shop via Shopee!! 🛒💕",
+          "okay you HAVE to see this transformation 😭🎀✨ {customerRef}'s {product} went from reference photo to pure art!!\n\n{theme} vibes are so perfectly captured I'm obsessed 💕\n\ncustom orders OPEN!! DM us!! 🥹🛒",
+          "swipe to witness the most adorable glow-up 🥹🎀 {customerRef}'s {product} real → chibi transformation is everything!! 💕✨\n\n{theme} style really hits different in chibi form 😭\n\nDM us to start your order!! 🛒💕",
+        ],
+        trendy: [
+          "real → chibi and I cannot stop staring 👀✨ {customerRef}'s {product} transformation is elite\n\n{theme} aesthetic? check. cute factor? maximum. 🔥\n\norders open! DM or Shopee 🛒",
+          "the real to chibi glow-up we all needed 👀🔥 {customerRef}'s {product} looks absolutely stunning\n\n{theme} vibes hitting different in illustration form ✨\n\ncustom orders open — link in bio!",
+          "not me obsessing over {customerRef}'s {product} transformation 👀✨ the {theme} aesthetic translates so well into chibi style 🔥\n\norders open!! DM us or check Shopee 🛒",
+        ],
+        professional: [
+          "Real reference to custom chibi illustration ✦\n\n{customerRef}'s {product} captured in {theme} style — every detail thoughtfully rendered.\n\nCustom commissions open. DM us or visit our Shopee store.",
+          "Transformation spotlight: {customerRef}'s {product} ✦\n\nFrom reference photo to a unique chibi illustration in {theme} style. This is what we love about custom work.\n\nInterested? DM us to get started.",
+          "Every custom piece starts with your vision and ends with art ✦\n\nFeaturing {customerRef}'s {product} in our {theme} chibi style.\n\nCommissions open — DM us or order via Shopee.",
+        ],
+        minimalist: [
+          "Reference → Chibi.\n{customerRef}'s {product}. {theme} style.\n\nCustom orders open.",
+          "{product} for {customerRef}.\nReal → illustration.\n\nCommissions open.",
+          "Before & after: {customerRef}'s {product}.\n{theme}. Custom made.",
+        ],
+      },
+      instagram: {
+        cute: [
+          "REAL → CHIBI and I'm not surviving 😭🎀\n\n{customerRef}'s {product} turned out SO precious omg 💕✨ the {theme} aesthetic is everything!!\n\nDM us or tap link in bio to order yours!! 🛒🎀\n\n#likhaera #beforeandafter #chibiart #customart #transformation",
+          "okay I did NOT expect this to hit this hard 😭🎀✨\n\n{customerRef}'s {product} from reference to chibi is making me emotional 💕\n\n{theme} vibes fully captured 🥹\n\norders open!! link in bio!\n\n#likhaera #beforeandafter #chibi #customart #cute",
+          "swipe to see the most precious transformation ✨🎀\n\n{customerRef}'s {product} in {theme} style and I am OBSESSED 😭💕\n\nlink in bio for custom orders!! 🛒\n\n#likhaera #realvschibi #chibiart #customart #transformation",
+        ],
+        trendy: [
+          "the glow-up is REAL 👀✨\n\n{customerRef}'s {product} just got the chibi treatment and it's giving everything 🔥\n\n{theme} aesthetic translates so well wow\n\norders open! DM or link in bio\n\n#likhaera #beforeandafter #chibi #customart #fyp",
+          "real → chibi era and we are not going back 🔥✨\n\n{customerRef}'s {product} transformation is sending me 👀\n\n{theme} style goes crazy in chibi form honestly\n\n🛒 link in bio\n\n#likhaera #beforeandafter #viral #chibiart",
+          "not me losing my mind over this transformation 👀🔥\n\n{customerRef}'s {product} in {theme} chibi style?? elite.\n\norders open — link in bio!\n\n#likhaera #beforeandafter #fyp #chibi #customart",
+        ],
+        professional: [
+          "Real reference to chibi illustration ✦\n\nEvery custom {product} starts with your photo and becomes a one-of-a-kind piece. Featuring {customerRef}'s commission in {theme} style.\n\n📦 Orders open — DM us or shop via link in bio.\n\n#likhaera #customart #chibiart #commissions #personalizedgifts",
+          "Transformation spotlight: {customerRef}'s {product} ✦\n\nOur signature chibi style brings your reference to life in {theme} aesthetic.\n\nCustom commissions open. Link in bio.\n\n#likhaera #chibiart #beforeandafter #handmade #philippines",
+          "Where your photo becomes art ✦\n\n{customerRef}'s {product} commission — from reference to {theme} chibi illustration.\n\nSlots available. DM us to order.\n\n#likhaera #commissions #customart #chibi #artshop",
+        ],
+        minimalist: [
+          "reference → chibi / {product}\n\n{customerRef}'s commission. {theme}.\n\norders open.\n\n#likhaera #chibiart #customart",
+          "real → illustration\n{product} / {theme}\n\n{customerRef}.\n\ncommissions open.\n\n#likhaera #beforeandafter",
+          "before & after\n{product} for {customerRef}\n{theme} style\n\n#likhaera #chibi",
+        ],
+      },
+      tiktok: {
+        cute: [
+          "real photo → chibi {product} for {customerRef} and I'm not okay 😭🎀✨ {theme} aesthetic slaps!! #likhaera #beforeandafter #chibiart #fyp",
+          "the real → chibi transformation for {customerRef}'s {product} 🥹🎀 {theme} vibes came out SO good #likhaera #beforeandafter #fyp #cute",
+          "I am OBSESSED with how {customerRef}'s {product} turned out in {theme} chibi style 😭🎀✨ #likhaera #chibiart #fyp #transformation",
+        ],
+        trendy: [
+          "real → chibi transformation for {customerRef}'s {product} and it goes CRAZY 🔥✨ {theme} aesthetic 👀 #likhaera #beforeandafter #fyp #viral",
+          "the glow-up we all needed 👀🔥 {customerRef}'s {product} in {theme} chibi form is elite #likhaera #transformation #fyp",
+          "not me obsessing over this {theme} chibi {product} for {customerRef} 👀✨ #likhaera #beforeandafter #fyp #chibi",
+        ],
+        professional: [
+          "Real reference → custom chibi {product} ✦ {customerRef}'s commission in {theme} style. #likhaera #chibiart #customart #commission",
+          "Before & after: {customerRef}'s {product} ✦ {theme} chibi illustration, made with care. #likhaera #customart #transformation",
+          "Custom {product} for {customerRef} ✦ {theme} style. Real to chibi. #likhaera #chibiart #handmade",
+        ],
+        minimalist: [
+          "real → chibi / {product} ✦ {customerRef} #likhaera #art",
+          "{product} / {theme} / {customerRef} ✦ before & after #likhaera",
+          "before & after: {product} for {customerRef} ✦ {theme} #likhaera",
+        ],
+      },
+      hashtags: "#likhaera #beforeandafter #chibiart #customart #transformation #realvschibi #artcommissions #personalizedgifts #chibi #fanart #philippines #smallbusiness #commissions",
     },
-    hashtags: {
-      "sticker sheet": "#likhaera #customstickers #stickerpack #stickerart #kawaiistickers #cutestickers #stickershop #stickercommunity #smallbusiness #philippines #handmade #artshop #personalizedgifts",
-      bookmark:        "#likhaera #custombookmarks #bookmarkcollection #bookmarks #bookstagram #readingaesthetic #booklovers #smallbusiness #philippines #handmade #artshop",
-      keychain:        "#likhaera #customkeychain #keychainshop #beadedkeychain #kawaiikeychain #cutekeychain #keychain #smallbusiness #philippines #handmade #artshop",
-      "custom art design": "#likhaera #customart #commissions #customdesign #chibiart #fanart #personalizedgifts #artcommissions #smallbusiness #philippines #illustrationart",
-    },
-    description: {
-      cute: [
-        "The most adorable {theme} {product} you'll ever own 🎀 Made with love and lots of sparkle ✨ Custom orders welcome!",
-        "Super cute {theme} {product} that will make your heart melt!! 😭💕 Custom made just for you~",
-        "Your next fave {theme} {product} is HERE!! ✨ Kawaii vibes guaranteed 🎀 DM us to order!",
-      ],
-      trendy: [
-        "{theme} {product} that hits different 👀 Aesthetic, custom, and totally you ✨",
-        "The {theme} {product} aesthetic you've been looking for 🔥 Custom made, no cap.",
-        "{theme} {product} giving main character energy ✨ Custom, unique, iconic.",
-      ],
-      professional: [
-        "Premium quality {theme} {product}, handcrafted with care. Perfect as a personal treat or a thoughtful gift.",
-        "Our {theme} {product} collection features carefully crafted designs that bring your personality to life. Each piece is made to order.",
-        "Discover our {theme} {product} — where artistic vision meets quality craftsmanship. Custom orders welcome.",
-      ],
-      minimalist: [
-        "Custom {theme} {product}. Simple. Personal. Yours.",
-        "{theme} {product}. Made to order. Made for you.",
-        "Minimal design. Maximum meaning. {theme} {product}.",
-      ],
-    },
-    tagline: {
-      cute:         ["Making memories one {product} at a time! 🎀", "Cute things for cute people ✨💕", "Spreading joy, one custom piece at a time! 🌸", "Your aesthetic bestie 🎀✨"],
-      trendy:       ["Your aesthetic, our craft ✨", "Different by design 🔥", "Custom made, main character approved ✨", "Stand out. Stay cute. Shop LIKHA-ERA 🔥"],
-      professional: ["Where your story becomes art.", "Crafted with purpose, made for you.", "Artistry in every detail.", "Your vision, our craft."],
-      minimalist:   ["Custom. Crafted. Yours.", "Art for the intentional.", "Made with meaning.", "Simple. Personal. Perfect."],
+
+    /* ── THANK YOU ── */
+    thankyou: {
+      facebook: {
+        cute: [
+          "THANK YOU SO MUCH {customerRef}!! 🥹🎀✨ your {product} order literally made my whole day 💕 I pour so much love into every piece and knowing you chose us means EVERYTHING\n\n{promo}\n\nif you love your order, please leave us a review on Shopee — it helps us so much!! 🥹💕",
+          "just want to take a moment to appreciate {customerRef} for ordering your {product}!! 🥹🎀 you are literally an angel\n\n{promo}\n\nwe hope your order makes you as happy as it made us to create 💕✨ drop us a review when it arrives!! 🥹",
+          "order appreciation post!! 🎀✨ {customerRef}, thank you for trusting us with your {product} order 🥹💕\n\nwe are so excited to make this for you!!\n\n{promo}\n\na little review when you receive it would mean the world 🥹💕",
+        ],
+        trendy: [
+          "shoutout to {customerRef} for the {product} order 🔥✨ you have TASTE and we appreciate you\n\n{promo}\n\ndrop a Shopee review when you receive it — it literally makes our day 🫶",
+          "real ones support small businesses 🫶✨ {customerRef}, your {product} order means the world to us\n\n{promo}\n\nwe're so excited to make this for you! review us on Shopee? 👀💕",
+          "not us crying happy tears over {customerRef}'s {product} order 😭✨ thank you for supporting LIKHA-ERA 🔥🫶\n\n{promo}\n\na Shopee review would go crazy if you're feeling generous 👀",
+        ],
+        professional: [
+          "Thank you, {customerRef}, for trusting LIKHA-ERA with your {product} order ✦\n\nYour support means everything to our small business. We look forward to creating something truly special for you.\n\n{promo}\n\nA review on Shopee would mean the world to us!",
+          "We are grateful for every order, and yours is no exception ✦\n\nThank you, {customerRef}, for your {product} order. We'll put our best work into every detail.\n\n{promo}\n\nPlease do leave us a review when your order arrives!",
+          "Customer appreciation ✦\n\nThank you, {customerRef}, for choosing LIKHA-ERA for your {product}. Your trust in our craft is what drives us.\n\n{promo}",
+        ],
+        minimalist: [
+          "Thank you, {customerRef}.\n\n{product} order received.\n\n{promo}",
+          "{customerRef} — {product} order. Thank you.\n\n{promo}",
+          "Thank you for your order.\n{customerRef} / {product}.\n\n{promo}",
+        ],
+      },
+      instagram: {
+        cute: [
+          "order appreciation post!! 🥹🎀\n\n{customerRef}, THANK YOU for ordering your {product} 💕✨ you are so loved!!\n\n{promo}\n\nwe hope it makes you smile as much as making it does 🥹🎀\n\n#likhaera #thankyou #customerappreciation #smallbusiness #handmade",
+          "just need to shout out {customerRef} real quick 🥹🎀✨\n\nyour {product} order means SO much to us 💕 every single order is special!!\n\n{promo}\n\n#likhaera #thankyou #smallbusiness #supportlocal #cute",
+          "pov: you're {customerRef} and you just placed the most precious {product} order 🥹🎀✨\n\nTHANK YOU 💕 you're an absolute angel!!\n\n{promo}\n\n#likhaera #thankyou #customerappreciation #handmade",
+        ],
+        trendy: [
+          "customer appreciation post for {customerRef} 🫶✨\n\n{product} order received and we are HYPED 🔥\n\nyour support keeps this shop going — thank u fr\n\n{promo}\n\n#likhaera #thankyou #supportsmallbusiness #fyp",
+          "shoutout to {customerRef} for being an absolute real one 🫶🔥\n\n{product} order is in! we're so excited to make this\n\n{promo}\n\n#likhaera #thankyou #smallbusiness #viral",
+          "not us gushing about {customerRef}'s {product} order 😭✨\n\nthank you for choosing LIKHA-ERA 🫶🔥 you have the best taste\n\n{promo}\n\n#likhaera #thankyou #fyp #customerappreciation",
+        ],
+        professional: [
+          "A heartfelt thank you to {customerRef} ✦\n\nYour {product} order means everything to us. Thank you for supporting handmade and choosing LIKHA-ERA.\n\n{promo}\n\n#likhaera #thankyou #customerappreciation #smallbusiness #handmade",
+          "Customer appreciation ✦\n\nThank you, {customerRef}, for your {product} order. Your support is what makes our work meaningful.\n\n{promo}\n\n#likhaera #thankyou #supportlocal #handcrafted #philippines",
+          "Every order is a story, and yours adds to ours ✦\n\nThank you, {customerRef}, for choosing our {product}.\n\n{promo}\n\n#likhaera #thankyou #smallbusiness #customerappreciation",
+        ],
+        minimalist: [
+          "thank you {customerRef}\n{product} order\n\n{promo}\n\n#likhaera #thankyou",
+          "{customerRef} / {product}\nthank you for your order.\n\n{promo}\n\n#likhaera",
+          "order received. {product}.\nthank you, {customerRef}.\n\n{promo}\n\n#likhaera",
+        ],
+      },
+      tiktok: {
+        cute: [
+          "thank you SO much {customerRef} for ordering your {product}!! 🥹🎀✨ we appreciate you so much!! {promo} #likhaera #thankyou #smallbusiness #fyp",
+          "just want to say thank you to {customerRef} for the {product} order 🥹🎀 it means the world!! {promo} #likhaera #thankyou #fyp #cute",
+          "customer appreciation for {customerRef}!! 😭🎀✨ your {product} order is so precious to us 💕 {promo} #likhaera #thankyou #supportsmallbusiness #fyp",
+        ],
+        trendy: [
+          "shoutout {customerRef} for the {product} order 👀🔥 you are the real MVP 🫶 {promo} #likhaera #thankyou #fyp",
+          "not us being so grateful for {customerRef}'s {product} order 😭✨ thank you fr 🫶 {promo} #likhaera #thankyou #fyp #viral",
+          "real ones support small businesses 🫶🔥 {customerRef} your {product} order is everything thank you!! {promo} #likhaera #thankyou #fyp",
+        ],
+        professional: [
+          "Thank you {customerRef} for your {product} order ✦ Your support means so much to us. {promo} #likhaera #thankyou #smallbusiness #philippines",
+          "Customer appreciation for {customerRef} ✦ Thank you for choosing our {product}. {promo} #likhaera #thankyou #handmade",
+          "Grateful for every order ✦ Thank you, {customerRef}, for your {product}. {promo} #likhaera #thankyou #supportlocal",
+        ],
+        minimalist: [
+          "thank you {customerRef} / {product} ✦ {promo} #likhaera",
+          "{customerRef} / {product} / thank you ✦ {promo} #likhaera",
+          "order received. thank you. {customerRef} ✦ {promo} #likhaera",
+        ],
+      },
+      specialmessage: {
+        cute: [
+          "Hi {customerRef}!! 🎀✨ Thank you SO much for your {product} order — it means the absolute world to me 🥹💕 I'm going to put so much love into making yours!! Can't wait for you to see it 🥹🎀\n\n{promo}\n\nWith love,\nLIKHA-ERA ✦",
+          "Hello {customerRef}!! 🌸✨ Just wanted to say THANK YOU for trusting us with your {product} 🥹🎀 Every order is so special to us and yours is no exception!! We'll keep you updated 💕\n\n{promo}\n\nHugs,\nLIKHA-ERA ✦",
+          "{customerRef}!! 🥹🎀 You have no idea how happy your {product} order made us!! We pour so much love into every piece and we're so excited to make yours 💕✨\n\n{promo}\n\nWith so much love,\nLIKHA-ERA ✦",
+        ],
+        trendy: [
+          "Hey {customerRef}! 👀✨ Thank you for your {product} order — honestly it made our day 🫶 We're so excited to start on yours! Will keep you posted ✨\n\n{promo}\n\nLIKHA-ERA ✦",
+          "Hi {customerRef}! 🔥✨ Your {product} order is locked in and we are HYPED to make it for you 🫶 Thank you for supporting our lil shop! Updates coming soon!\n\n{promo}\n\nLIKHA-ERA ✦",
+          "{customerRef}! 👀 Thank you for the {product} order — you have taste and we respect that 🫶✨ Stay tuned for updates!\n\n{promo}\n\nLIKHA-ERA ✦",
+        ],
+        professional: [
+          "Dear {customerRef},\n\nThank you for placing your {product} order with LIKHA-ERA. We're thrilled to be creating something special for you and will keep you updated throughout the process.\n\n{promo}\n\nWarm regards,\nLIKHA-ERA ✦",
+          "Hello {customerRef},\n\nWe've received your {product} order and we're excited to get started! Each piece is made with care and intention — we look forward to sharing the finished work with you.\n\n{promo}\n\nSincerely,\nLIKHA-ERA ✦",
+          "Dear {customerRef},\n\nThank you for choosing LIKHA-ERA for your {product}. Your order has been received and we'll be in touch with updates.\n\n{promo}\n\nBest,\nLIKHA-ERA ✦",
+        ],
+        minimalist: [
+          "Hi {customerRef},\n\nThank you for your {product} order. We'll be in touch.\n\n{promo}\n\nLIKHA-ERA",
+          "{customerRef} — {product} order confirmed. Thank you.\n\n{promo}\n\nLIKHA-ERA",
+          "Thank you, {customerRef}. Your {product} is in our hands.\n\n{promo}\n\nLIKHA-ERA",
+        ],
+      },
+      hashtags: "#likhaera #thankyou #customerappreciation #smallbusiness #supportlocal #handmade #philippines #shopph #smallbusinessowner #orderreceived",
     },
   };
 
-  /* ─── state ─── */
-  let currentTone     = 'cute';
-  let variantCounters = {}; // tracks which variant index per key to avoid repeats
+  /* ── config: which cards show per post type ── */
+  const POST_CONFIG = {
+    promo:       { cards: ['facebook','instagram','tiktok','hashtags','description','tagline'], label: '6 pieces of content generated' },
+    bts:         { cards: ['facebook','instagram','tiktok','hashtags'],                         label: '4 pieces of content generated' },
+    beforeafter: { cards: ['facebook','instagram','tiktok','hashtags'],                         label: '4 pieces of content generated' },
+    thankyou:    { cards: ['facebook','instagram','tiktok','specialmessage'],                   label: '4 pieces of content generated' },
+  };
 
-  /* ─── tone pills ─── */
+  const ALL_CARDS = ['facebook','instagram','tiktok','hashtags','description','tagline','specialmessage'];
+
+  /* ── state ── */
+  let currentTone     = 'cute';
+  let currentPostType = 'promo';
+  let variantCounters = {};
+
+  /* ── post type pills ── */
+  document.querySelectorAll('.type-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentPostType = pill.dataset.type;
+      // show correct input group
+      document.querySelectorAll('.input-group').forEach(g => {
+        g.classList.toggle('hidden', g.dataset.group !== currentPostType);
+      });
+      // reset output panel
+      document.getElementById('emptyState').classList.remove('hidden');
+      document.getElementById('outputGrid').classList.add('hidden');
+      variantCounters = {};
+    });
+  });
+
+  /* ── tone pills ── */
   document.querySelectorAll('.tone-pill').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('.tone-pill').forEach(p => p.classList.remove('active'));
@@ -505,156 +799,161 @@
     });
   });
 
-  /* ─── helpers ─── */
+  /* ── helpers ── */
   function getInputs() {
-    return {
-      product:   document.getElementById('productType').value,
-      theme:     document.getElementById('theme').value.trim() || 'custom',
-      promo:     document.getElementById('promoDetails').value.trim() || 'Custom orders now open — DM us to start!',
-      tone:      currentTone,
-      useEmoji:  document.getElementById('emojiToggle').checked,
+    const base = { postType: currentPostType, tone: currentTone, useEmoji: document.getElementById('emojiToggle').checked };
+    if (currentPostType === 'promo') return {
+      ...base,
+      product:  document.getElementById('productType').value,
+      theme:    document.getElementById('theme').value.trim() || 'custom',
+      promo:    document.getElementById('promoDetails').value.trim() || 'Custom orders now open — DM us to start!',
+    };
+    if (currentPostType === 'bts') return {
+      ...base,
+      workingOn:   document.getElementById('btsWorkingOn').value.trim() || 'new orders',
+      processStep: document.getElementById('btsProcess').value.trim() || 'creating',
+      funFact:     document.getElementById('btsFunFact').value.trim() || 'Every piece is made by hand with love.',
+    };
+    if (currentPostType === 'beforeafter') return {
+      ...base,
+      customerRef: document.getElementById('baCustomer').value.trim() || 'a sweet customer',
+      product:     document.getElementById('baProduct').value.trim() || 'custom art',
+      theme:       document.getElementById('baTheme').value.trim() || 'chibi',
+    };
+    if (currentPostType === 'thankyou') return {
+      ...base,
+      customerRef: document.getElementById('tyCustomer').value.trim() || 'our amazing customer',
+      product:     document.getElementById('tyProduct').value.trim() || 'order',
+      promo:       document.getElementById('tyPromo').value.trim() || 'Thank you for supporting our small business!',
     };
   }
 
-  function productTag(product) {
-    return product.replace(/\s+/g, '').toLowerCase();
-  }
+  function productTag(p) { return (p || '').replace(/\s+/g, '').toLowerCase(); }
 
   function fill(template, inputs) {
     let text = template
-      .replace(/{product}/g, inputs.product)
-      .replace(/{theme}/g, inputs.theme)
-      .replace(/{promo}/g, inputs.promo)
-      .replace(/{productTag}/g, productTag(inputs.product));
-
+      .replace(/{product}/g,     inputs.product || '')
+      .replace(/{theme}/g,       inputs.theme || '')
+      .replace(/{promo}/g,       inputs.promo || '')
+      .replace(/{productTag}/g,  productTag(inputs.product))
+      .replace(/{workingOn}/g,   inputs.workingOn || '')
+      .replace(/{processStep}/g, inputs.processStep || '')
+      .replace(/{funFact}/g,     inputs.funFact || '')
+      .replace(/{customerRef}/g, inputs.customerRef || '');
     if (!inputs.useEmoji) {
-      // strip emojis but keep text
       text = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27FF}]/gu, '').replace(/\s{2,}/g, ' ').trim();
     }
     return text;
   }
 
   function pick(arr, key) {
-    /* Rotate through variants on each regenerate for the same key */
     if (variantCounters[key] === undefined) variantCounters[key] = 0;
     const idx = variantCounters[key] % arr.length;
     variantCounters[key]++;
     return arr[idx];
   }
 
-  /* ─── generate ─── */
+  /* ── build content per key ── */
   function buildContent(inputs, key) {
-    const p = inputs.product;
+    const t = inputs.postType;
+    const tone = inputs.tone;
     switch (key) {
-      case 'facebook':    return fill(pick(T.facebook[inputs.tone],    'fb'),   inputs);
-      case 'instagram':   return fill(pick(T.instagram[inputs.tone],   'ig'),   inputs);
-      case 'tiktok':      return fill(pick(T.tiktok[inputs.tone],      'tt'),   inputs);
-      case 'hashtags':    return T.hashtags[p] || T.hashtags['sticker sheet'];
-      case 'description': return fill(pick(T.description[inputs.tone], 'desc'), inputs);
-      case 'tagline':     return fill(pick(T.tagline[inputs.tone],     'tag'),  inputs);
+      case 'facebook':
+      case 'instagram':
+      case 'tiktok':
+        return fill(pick(T[t][key][tone], `${t}-${key}`), inputs);
+      case 'hashtags':
+        if (t === 'promo') return T.promo.hashtags[inputs.product] || T.promo.hashtags['sticker sheet'];
+        return T[t].hashtags;
+      case 'description':
+        return fill(pick(T.promo.description[tone], 'desc'), inputs);
+      case 'tagline':
+        return fill(pick(T.promo.tagline[tone], 'tag'), inputs);
+      case 'specialmessage':
+        return fill(pick(T.thankyou.specialmessage[tone], 'spec'), inputs);
     }
   }
 
   function setOutput(key, text) {
     if (key === 'hashtags') {
-      const tags   = text.split(' ').map(t => t.trim()).filter(Boolean);
-      const pills  = document.getElementById('out-hashtags-pills');
-      const hidden = document.getElementById('out-hashtags');
-      pills.innerHTML = tags.map(t =>
+      const tags = text.split(/\s+/).filter(Boolean);
+      document.getElementById('out-hashtags-pills').innerHTML = tags.map(t =>
         `<span class="inline-block px-2.5 py-1 rounded-full bg-blush text-deep-rose text-xs font-semibold">${t}</span>`
       ).join('');
-      hidden.textContent = text; // used by copy
+      document.getElementById('out-hashtags').textContent = text;
     } else {
       document.getElementById(`out-${key}`).textContent = text;
     }
   }
 
+  /* ── generate all ── */
   function generateAll() {
     const inputs = getInputs();
-    if (!inputs.product) {
-      document.getElementById('productType').focus();
-      document.getElementById('productType').style.borderColor = '#A83D5A';
-      setTimeout(() => document.getElementById('productType').style.borderColor = '', 1500);
+    if (inputs.postType === 'promo' && !inputs.product) {
+      const sel = document.getElementById('productType');
+      sel.focus();
+      sel.style.borderColor = '#A83D5A';
+      setTimeout(() => sel.style.borderColor = '', 1500);
       return;
     }
 
-    // reset variant counters on full regenerate
     variantCounters = {};
-
     document.getElementById('emptyState').classList.add('hidden');
     const grid = document.getElementById('outputGrid');
     grid.classList.remove('hidden');
 
-    ['facebook','instagram','tiktok','hashtags','description','tagline'].forEach(key => {
-      setOutput(key, buildContent(inputs, key));
+    const config = POST_CONFIG[currentPostType];
+    document.getElementById('countBarText').textContent = config.label;
+
+    ALL_CARDS.forEach(k => {
+      const card = document.getElementById(`card-${k}`);
+      card.classList.toggle('hidden', !config.cards.includes(k));
     });
 
-    // smooth scroll to output on mobile
-    if (window.innerWidth < 1024) {
-      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    config.cards.forEach(k => setOutput(k, buildContent(inputs, k)));
+
+    if (window.innerWidth < 1024) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function regenerateSingle(key) {
     const inputs = getInputs();
-    if (!inputs.product) return;
     setOutput(key, buildContent(inputs, key));
-    // flash the card
     const card = document.getElementById(`card-${key}`);
     card.style.boxShadow = '0 0 0 2px #A83D5A';
     setTimeout(() => card.style.boxShadow = '', 500);
   }
 
-  /* ─── copy ─── */
+  /* ── copy ── */
   function copyText(key) {
-    let text;
-    if (key === 'hashtags') {
-      text = document.getElementById('out-hashtags').textContent;
-    } else {
-      text = document.getElementById(`out-${key}`).textContent;
-    }
+    const text = key === 'hashtags'
+      ? document.getElementById('out-hashtags').textContent
+      : document.getElementById(`out-${key}`).textContent;
     if (!text) return;
-
     navigator.clipboard.writeText(text).then(() => {
       const btn = document.querySelector(`#card-${key} .copy-btn`);
       btn.classList.add('copied');
       btn.querySelector('span').textContent = 'Copied!';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.querySelector('span').textContent = 'Copy';
-      }, 2000);
+      setTimeout(() => { btn.classList.remove('copied'); btn.querySelector('span').textContent = 'Copy'; }, 2000);
     });
   }
 
   function copyAll() {
-    const keys = ['facebook','instagram','tiktok','hashtags','description','tagline'];
-    const labels = {
-      facebook: '📘 FACEBOOK', instagram: '📸 INSTAGRAM', tiktok: '🎵 TIKTOK',
-      hashtags: '# HASHTAGS', description: '📝 DESCRIPTION', tagline: '✦ TAGLINE',
-    };
-    const all = keys.map(k => {
-      const text = k === 'hashtags'
-        ? document.getElementById('out-hashtags').textContent
-        : document.getElementById(`out-${k}`).textContent;
+    const config = POST_CONFIG[currentPostType];
+    const labels = { facebook:'📘 FACEBOOK', instagram:'📸 INSTAGRAM', tiktok:'🎵 TIKTOK', hashtags:'# HASHTAGS', description:'📝 DESCRIPTION', tagline:'✦ TAGLINE', specialmessage:'💌 PERSONAL MESSAGE' };
+    const all = config.cards.map(k => {
+      const text = k === 'hashtags' ? document.getElementById('out-hashtags').textContent : document.getElementById(`out-${k}`).textContent;
       return `${labels[k]}\n${'─'.repeat(30)}\n${text}`;
     }).join('\n\n');
-
     navigator.clipboard.writeText(all).then(() => {
       const btn = document.getElementById('copyAllBtn');
       btn.textContent = '✓ All Content Copied!';
       btn.classList.add('bg-blush');
-      setTimeout(() => {
-        btn.textContent = '📋 Copy All Content';
-        btn.classList.remove('bg-blush');
-      }, 2500);
+      setTimeout(() => { btn.textContent = '📋 Copy All Content'; btn.classList.remove('bg-blush'); }, 2500);
     });
   }
 
-  /* ─── allow Enter key on inputs ─── */
-  ['theme','promoDetails'].forEach(id => {
-    document.getElementById(id).addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey && id === 'theme') generateAll();
-    });
+  document.getElementById('theme').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) generateAll();
   });
   </script>
 
