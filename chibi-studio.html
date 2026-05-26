@@ -102,7 +102,6 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   border: 1.5px solid rgba(242,167,195,0.3);
-  overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .stage.active {
@@ -113,8 +112,12 @@ body {
   display: flex; align-items: center; gap: 10px;
   padding: 12px 16px;
   background: linear-gradient(135deg, var(--blush), rgba(255,248,245,0.6));
-  cursor: default;
+  border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0;
+  cursor: pointer;
   user-select: none;
+}
+.stage-header.closed {
+  border-radius: calc(var(--radius) - 2px);
 }
 .stage-num {
   width: 24px; height: 24px; border-radius: 50%;
@@ -123,8 +126,7 @@ body {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.stage-num.done { background: #5cb85c; }
-.stage-num.done::before { content: "✓"; }
+.stage-num.done { background: #5cb85c; font-size: 13px; }
 .stage-title {
   font-weight: 600; font-size: 13.5px; color: var(--taupe); flex: 1;
 }
@@ -135,14 +137,19 @@ body {
 }
 .stage-pill.local { background: #e8f5e9; color: #388e3c; }
 .stage-pill.opt   { background: #fff3e0; color: #e65100; }
-.stage-toggle { margin-left: auto; font-size: 16px; color: var(--mauve); transition: transform 0.2s; }
-.stage-toggle.open { transform: rotate(90deg); }
+.stage-chevron {
+  margin-left: 4px; font-size: 13px; color: var(--mauve);
+  transition: transform 0.22s ease; flex-shrink: 0;
+  line-height: 1;
+}
+.stage-chevron.open { transform: rotate(90deg); }
 
 .stage-body {
   padding: 14px 16px 16px;
   display: flex; flex-direction: column; gap: 12px;
+  border-top: 1px solid rgba(242,167,195,0.15);
 }
-.stage-body.hidden { display: none; }
+.stage-body.hidden { display: none !important; }
 
 /* ── Form elements ───────────────────────────────────────────────────── */
 .field { display: flex; flex-direction: column; gap: 4px; }
@@ -431,10 +438,11 @@ input[type="color"] {
 
     <!-- STAGE 1: Gemini -->
     <div class="stage active" id="s1">
-      <div class="stage-header">
+      <div class="stage-header" onclick="toggleStage(1)">
         <div class="stage-num" id="s1-num">1</div>
         <div class="stage-title">Generate Chibi with Gemini</div>
         <div class="stage-pill">AI</div>
+        <div class="stage-chevron open" id="s1-chev">›</div>
       </div>
       <div class="stage-body" id="s1-body">
 
@@ -500,12 +508,13 @@ input[type="color"] {
 
     <!-- STAGE 2: ComfyUI -->
     <div class="stage" id="s2">
-      <div class="stage-header">
+      <div class="stage-header closed" onclick="toggleStage(2)">
         <div class="stage-num" id="s2-num">2</div>
         <div class="stage-title">Refine in ComfyUI</div>
         <div class="stage-pill local">Local</div>
+        <div class="stage-chevron" id="s2-chev">›</div>
       </div>
-      <div class="stage-body" id="s2-body">
+      <div class="stage-body hidden" id="s2-body">
 
         <div class="note">
           Uses the image from Stage 1, or upload below to skip Gemini.
@@ -560,11 +569,11 @@ input[type="color"] {
 
     <!-- STAGE 3: Optional Fix (collapsed) -->
     <div class="stage" id="s3">
-      <div class="stage-header" style="cursor:pointer" onclick="toggleS3()">
+      <div class="stage-header closed" onclick="toggleStage(3)">
         <div class="stage-num" id="s3-num">3</div>
         <div class="stage-title">Fix Outfit / Fur (Optional)</div>
         <div class="stage-pill opt">Optional</div>
-        <div class="stage-toggle" id="s3-toggle">›</div>
+        <div class="stage-chevron" id="s3-chev">›</div>
       </div>
       <div class="stage-body hidden" id="s3-body">
 
@@ -601,12 +610,13 @@ input[type="color"] {
 
     <!-- STAGE 4: Finalize -->
     <div class="stage" id="s4">
-      <div class="stage-header">
+      <div class="stage-header closed" onclick="toggleStage(4)">
         <div class="stage-num" id="s4-num">4</div>
         <div class="stage-title">Finalize for Stickers</div>
         <div class="stage-pill">Export</div>
+        <div class="stage-chevron" id="s4-chev">›</div>
       </div>
-      <div class="stage-body" id="s4-body">
+      <div class="stage-body hidden" id="s4-body">
 
         <div class="note" id="rembg-note">
           Background removal requires the bridge to be running. Start it once with: <code>node chibi-api.mjs</code>
@@ -842,12 +852,27 @@ function setFixMode(mode) {
   document.querySelectorAll('#s3 .mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
 }
 
-function toggleS3() {
-  const body  = document.getElementById('s3-body');
-  const icon  = document.getElementById('s3-toggle');
-  const open  = !body.classList.contains('hidden');
-  body.classList.toggle('hidden', open);
-  icon.classList.toggle('open', !open);
+// ── Accordion toggle ───────────────────────────────────────────────────────
+
+function toggleStage(n) {
+  const body = document.getElementById(`s${n}-body`);
+  const chev = document.getElementById(`s${n}-chev`);
+  const hdr  = document.querySelector(`#s${n} .stage-header`);
+  const isOpen = !body.classList.contains('hidden');
+  body.classList.toggle('hidden', isOpen);
+  chev.classList.toggle('open', !isOpen);
+  hdr.classList.toggle('closed', isOpen);
+}
+
+function openStage(n) {
+  const body = document.getElementById(`s${n}-body`);
+  const chev = document.getElementById(`s${n}-chev`);
+  const hdr  = document.querySelector(`#s${n} .stage-header`);
+  if (!body) return;
+  body.classList.remove('hidden');
+  if (chev) chev.classList.add('open');
+  if (hdr)  hdr.classList.remove('closed');
+  document.getElementById(`s${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ── Dropzone helpers ───────────────────────────────────────────────────────
@@ -942,7 +967,8 @@ async function runGemini() {
     setPreview(dataUrl);
     markDone('s1-num');
     setFlowStep(1);
-    toast('Gemini chibi generated ✓');
+    toast('Gemini chibi generated ✓ — Stage 2 ready');
+    openStage(2);
 
   } catch (e) {
     toast(`Gemini error: ${e.message}`, 5000);
@@ -1004,6 +1030,7 @@ async function runComfyUI() {
     statusText('comfy', `Done — ${outputs.length} image(s) ready`, 100);
     markDone('s2-num');
     setFlowStep(2);
+    openStage(4);
 
   } catch (e) {
     toast(`ComfyUI error: ${e.message}`, 5000);
@@ -1113,7 +1140,8 @@ async function runFix() {
     setPreview(dataUrl);
     markDone('s3-num');
     setFlowStep(3);
-    toast('Fix applied ✓');
+    toast('Fix applied ✓ — Stage 4 ready');
+    openStage(4);
 
   } catch (e) {
     toast(`Fix error: ${e.message}`, 5000);
@@ -1250,7 +1278,7 @@ function setFlowStep(n) {
 function markDone(numId) {
   const el = document.getElementById(numId);
   el.className = 'stage-num done';
-  el.textContent = '';
+  el.textContent = '✓';
 }
 
 // ── Batch ──────────────────────────────────────────────────────────────────
