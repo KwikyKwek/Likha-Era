@@ -91,6 +91,15 @@
     .pos-btn.active { background: #A83D5A; border-color: #A83D5A; }
     .pos-btn:hover:not(.active) { border-color: #E8A4BE; background: #F8EBF1; }
 
+    /* icon style pills */
+    .icon-pill {
+      padding: .35rem .4rem; border-radius: 8px; font-size: .72rem; font-weight: 600;
+      border: 1.5px solid #EDE5DC; background: white; color: #9B8090;
+      cursor: pointer; transition: all .15s; text-align: center; width: 100%;
+    }
+    .icon-pill.active { background: #A83D5A; border-color: #A83D5A; color: white; }
+    .icon-pill:hover:not(.active) { border-color: #E8A4BE; color: #A83D5A; }
+
     /* color swatches */
     .swatch {
       width: 28px; height: 28px; border-radius: 8px; border: 2px solid transparent;
@@ -275,6 +284,19 @@
             <label class="text-xs font-bold text-dark uppercase tracking-wider">Text Content</label>
             <input type="text" id="wmText" class="form-input" value="LIKHA-ERA" maxlength="40" placeholder="Your watermark text…" />
 
+            <!-- Icon above text -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-dark">Icon Above Text</label>
+              <div class="grid grid-cols-3 gap-1.5">
+                <button class="icon-pill active" data-icon="stars">✦ Stars</button>
+                <button class="icon-pill" data-icon="hearts">♡ Hearts</button>
+                <button class="icon-pill" data-icon="sparkles">✧ Sparkle</button>
+                <button class="icon-pill" data-icon="floral">✿ Floral</button>
+                <button class="icon-pill" data-icon="dots">· · Dots</button>
+                <button class="icon-pill" data-icon="none">— None</button>
+              </div>
+            </div>
+
             <div class="space-y-1">
               <div class="flex justify-between items-center">
                 <label class="text-xs font-semibold text-dark">Text Size</label>
@@ -345,6 +367,16 @@
               <span class="text-xs text-taupe" id="opacityVal">40%</span>
             </div>
             <input type="range" id="wmOpacity" min="5" max="95" step="5" value="40" />
+          </div>
+
+          <!-- Tile Spacing (tile mode only) -->
+          <div id="tileSpacingSection" class="space-y-1 hidden">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-bold text-dark uppercase tracking-wider">Tile Spacing</label>
+              <span class="text-xs text-taupe" id="tileGapVal">Normal</span>
+            </div>
+            <input type="range" id="tileGap" min="0" max="10" step="1" value="5" />
+            <p class="text-xs text-taupe">Slide left = tighter grid · right = more space</p>
           </div>
 
           <hr class="border-sand" />
@@ -427,12 +459,14 @@
     position: 'br',      // tl tc tr ml mc mr bl bc br
     text:     'LIKHA-ERA',
     textSize: 3,         // 1-5
+    iconStyle: 'stars',  // stars | hearts | sparkles | floral | dots | none
     color:    'white',
     colorHex: '#ffffff',
     textBox:  false,
     logoSize: 3,         // 1-5
     logoMultiply: true,
     opacity:  40,        // 5-95
+    tileGap:  5,         // 0-10
   };
 
   // Preload logo
@@ -446,6 +480,17 @@
   const COLOR_MAP = {
     white: '#ffffff', rose: '#A83D5A', dark: '#2A1520', blush: '#F2A7C3', gold: '#D4A843',
   };
+
+  const ICON_STRINGS = {
+    stars:    '✦  ✦  ✦',
+    hearts:   '♡  ♡  ♡',
+    sparkles: '✧  ✦  ✧',
+    floral:   '✿  ✦  ✿',
+    dots:     '·  ·  ·',
+    none:     '',
+  };
+
+  const GAP_LABELS = ['Very Tight','Tight','Tight','Compact','Compact','Normal','Spacious','Spacious','Airy','Airy','Very Airy'];
 
   /* ═══════════════════════════════════════════
      UPLOAD
@@ -573,109 +618,120 @@
     const padding   = Math.round(Math.min(W, H) * 0.03);
 
     if (S.mode === 'tile') {
-      drawTiled(ctx, W, H, fontSize, logoW, logoH, padding);
+      drawTiled(ctx, W, H, fontSize, logoW, logoH);
     } else {
       drawSingle(ctx, W, H, fontSize, logoW, logoH, padding);
+    }
+  }
+
+  /* ── measure a single watermark unit (icon + logo + text) ── */
+  function measureUnit(ctx, fontSize, logoW, logoH) {
+    let unitW = 0, unitH = 0, iconH = 0;
+
+    // Icon row (only when type includes text)
+    if (S.iconStyle !== 'none' && S.wmType !== 'logo') {
+      const isz = Math.round(fontSize * 0.65);
+      ctx.font = `300 ${isz}px "Cormorant Garamond", serif`;
+      unitW = Math.max(unitW, ctx.measureText(ICON_STRINGS[S.iconStyle]).width);
+      iconH = Math.round(isz * 1.35);
+      unitH += iconH;
+    }
+
+    // Logo
+    if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete && LOGO.naturalWidth) {
+      unitW = Math.max(unitW, logoW);
+      unitH += logoH + (S.wmType === 'both' ? Math.round(fontSize * 0.35) : 0);
+    }
+
+    // Text
+    if (S.wmType === 'text' || S.wmType === 'both') {
+      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+      unitW = Math.max(unitW, ctx.measureText(S.text).width);
+      unitH += fontSize;
+    }
+
+    return { unitW, unitH, iconH };
+  }
+
+  /* ── draw one complete watermark unit at (ax, ay) ── */
+  function drawUnit(ctx, ax, ay, fontSize, logoW, logoH, { unitW, iconH }) {
+    let cy = ay;
+
+    // Icon
+    if (S.iconStyle !== 'none' && S.wmType !== 'logo') {
+      const isz = Math.round(fontSize * 0.65);
+      ctx.font = `300 ${isz}px "Cormorant Garamond", serif`;
+      const iStr = ICON_STRINGS[S.iconStyle];
+      const iw   = ctx.measureText(iStr).width;
+      ctx.fillStyle   = S.colorHex;
+      ctx.shadowColor = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)';
+      ctx.shadowBlur  = isz * 0.25;
+      ctx.fillText(iStr, ax + (unitW - iw) / 2, cy + isz);
+      cy += iconH;
+      ctx.shadowBlur = 0;
+    }
+
+    // Logo
+    if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete && LOGO.naturalWidth) {
+      if (S.logoMultiply) ctx.globalCompositeOperation = 'multiply';
+      ctx.drawImage(LOGO, ax + (unitW - logoW) / 2, cy, logoW, logoH);
+      ctx.globalCompositeOperation = 'source-over';
+      cy += logoH + (S.wmType === 'both' ? Math.round(fontSize * 0.35) : 0);
+    }
+
+    // Text
+    if (S.wmType === 'text' || S.wmType === 'both') {
+      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
+      const tw = ctx.measureText(S.text).width;
+      const tx = ax + (unitW - tw) / 2;
+      const ty = cy + fontSize;
+
+      if (S.textBox) {
+        const bpad = fontSize * 0.3;
+        const a = ctx.globalAlpha;
+        ctx.globalAlpha = a * 0.5;
+        ctx.fillStyle   = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)';
+        ctx.shadowBlur  = 0;
+        ctx.beginPath();
+        ctx.roundRect(tx - bpad, ty - fontSize - bpad * 0.5, tw + bpad * 2, fontSize + bpad * 1.5, fontSize * 0.2);
+        ctx.fill();
+        ctx.globalAlpha = a;
+      }
+
+      ctx.fillStyle   = S.colorHex;
+      ctx.shadowColor = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)';
+      ctx.shadowBlur  = fontSize * 0.35;
+      ctx.fillText(S.text, tx, ty);
+      ctx.shadowBlur = 0;
     }
   }
 
   function drawSingle(ctx, W, H, fontSize, logoW, logoH, padding) {
     ctx.save();
     ctx.globalAlpha = S.opacity / 100;
-
-    let totalW = 0, totalH = 0;
-
-    if (S.wmType === 'text' || S.wmType === 'both') {
-      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
-      totalW = Math.max(totalW, ctx.measureText(S.text).width);
-      totalH += fontSize;
-    }
-    if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete) {
-      totalW = Math.max(totalW, logoW);
-      totalH += (S.wmType === 'both' ? logoH + Math.round(fontSize * 0.3) : logoH);
-    }
-
-    const pos = calcPos(W, H, totalW, totalH, S.position, padding);
-    let curY = pos.y;
-
-    // Draw logo
-    if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete && LOGO.naturalWidth) {
-      const lx = pos.x + (totalW - logoW) / 2;
-      if (S.logoMultiply) ctx.globalCompositeOperation = 'multiply';
-      ctx.drawImage(LOGO, lx, curY, logoW, logoH);
-      ctx.globalCompositeOperation = 'source-over';
-      curY += logoH + Math.round(fontSize * 0.3);
-    }
-
-    // Draw text
-    if (S.wmType === 'text' || S.wmType === 'both') {
-      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
-      const tw = ctx.measureText(S.text).width;
-      const tx = pos.x + (totalW - tw) / 2;
-      const ty = curY + fontSize;
-
-      if (S.textBox) {
-        const bpad = fontSize * 0.3;
-        ctx.globalAlpha = (S.opacity / 100) * 0.55;
-        ctx.fillStyle = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
-        ctx.beginPath();
-        ctx.roundRect(tx - bpad, ty - fontSize - bpad * 0.5, tw + bpad * 2, fontSize + bpad * 1.5, fontSize * 0.2);
-        ctx.fill();
-        ctx.globalAlpha = S.opacity / 100;
-      }
-
-      ctx.fillStyle = S.colorHex;
-      ctx.shadowColor = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)';
-      ctx.shadowBlur = fontSize * 0.35;
-      ctx.fillText(S.text, tx, ty);
-      ctx.shadowBlur = 0;
-    }
-
+    const dims = measureUnit(ctx, fontSize, logoW, logoH);
+    const pos  = calcPos(W, H, dims.unitW, dims.unitH, S.position, padding);
+    drawUnit(ctx, pos.x, pos.y, fontSize, logoW, logoH, dims);
     ctx.restore();
   }
 
-  function drawTiled(ctx, W, H, fontSize, logoW, logoH, padding) {
+  function drawTiled(ctx, W, H, fontSize, logoW, logoH) {
     ctx.save();
     ctx.translate(W / 2, H / 2);
     ctx.rotate(-25 * Math.PI / 180);
     ctx.globalAlpha = S.opacity / 100;
 
-    const diag = Math.ceil(Math.sqrt(W * W + H * H)) + Math.max(logoW, fontSize * 10);
+    const dims  = measureUnit(ctx, fontSize, logoW, logoH);
+    const diag  = Math.ceil(Math.sqrt(W * W + H * H)) + Math.max(dims.unitW, dims.unitH) * 4;
 
-    // Measure one unit
-    let unitW = 0, unitH = 0;
-    if (S.wmType === 'text' || S.wmType === 'both') {
-      ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
-      unitW = Math.max(unitW, ctx.measureText(S.text).width);
-      unitH += fontSize;
-    }
-    if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete && LOGO.naturalWidth) {
-      unitW = Math.max(unitW, logoW);
-      unitH += logoH + (S.wmType === 'both' ? Math.round(fontSize * 0.3) : 0);
-    }
+    // gap factor: 0→touching, 5→normal, 10→very airy
+    const gf    = S.tileGap / 5;                           // 0 to 2
+    const stepX = dims.unitW + Math.max(fontSize * 0.5, dims.unitW * gf);
+    const stepY = dims.unitH + Math.max(fontSize * 0.3, dims.unitH * gf * 0.85);
 
-    const gapX = unitW * 1.8;
-    const gapY = unitH + fontSize * 2;
-
-    for (let tx = -diag; tx < diag; tx += unitW + gapX) {
-      for (let ty = -diag; ty < diag; ty += gapY) {
-        let cy = ty;
-
-        if ((S.wmType === 'logo' || S.wmType === 'both') && LOGO.complete && LOGO.naturalWidth) {
-          if (S.logoMultiply) { ctx.globalCompositeOperation = 'multiply'; }
-          ctx.drawImage(LOGO, tx, cy, logoW, logoH);
-          ctx.globalCompositeOperation = 'source-over';
-          cy += logoH + Math.round(fontSize * 0.3);
-        }
-
-        if (S.wmType === 'text' || S.wmType === 'both') {
-          ctx.font = `bold ${fontSize}px "Plus Jakarta Sans", sans-serif`;
-          ctx.fillStyle = S.colorHex;
-          ctx.shadowColor = S.colorHex === '#ffffff' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
-          ctx.shadowBlur = fontSize * 0.3;
-          ctx.fillText(S.text, tx, cy + fontSize);
-          ctx.shadowBlur = 0;
-        }
+    for (let tx = -diag; tx < diag; tx += stepX) {
+      for (let ty = -diag; ty < diag; ty += stepY) {
+        drawUnit(ctx, tx, ty, fontSize, logoW, logoH, dims);
       }
     }
 
@@ -790,8 +846,26 @@
       btn.classList.add('active');
       S.mode = btn.dataset.mode;
       document.getElementById('positionSection').classList.toggle('hidden', S.mode === 'tile');
+      document.getElementById('tileSpacingSection').classList.toggle('hidden', S.mode === 'single');
       schedulePreview();
     });
+  });
+
+  // Icon style pills
+  document.querySelectorAll('.icon-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.icon-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      S.iconStyle = btn.dataset.icon;
+      schedulePreview();
+    });
+  });
+
+  // Tile gap
+  document.getElementById('tileGap').addEventListener('input', e => {
+    S.tileGap = +e.target.value;
+    document.getElementById('tileGapVal').textContent = GAP_LABELS[S.tileGap];
+    schedulePreview();
   });
 
   // Position grid
