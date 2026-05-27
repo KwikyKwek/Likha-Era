@@ -570,7 +570,7 @@ input[type="date"].filter-select{padding:.56rem .85rem}
 
 <!-- Product Modal -->
 <div class="modal-overlay" id="product-modal">
-  <div class="modal">
+  <div class="modal modal-lg">
     <div class="modal-header">
       <span class="modal-title" id="product-modal-title">Add Product</span>
       <button class="modal-close" onclick="closeModal('product-modal')">×</button>
@@ -595,7 +595,56 @@ input[type="date"].filter-select{padding:.56rem .85rem}
         <div class="form-group" id="pm-price-max-group"><label>Max Price (₱)</label><input type="number" id="pm-price-max" placeholder="For custom range (optional)" min="0"/></div>
         <div class="form-group" id="pm-stock-group"><label>Stock</label><input type="number" id="pm-stock" placeholder="Leave blank for made-to-order" min="0"/></div>
       </div>
-      <div class="form-group"><label>Description</label><textarea id="pm-desc" rows="2" placeholder="Brief product description..."></textarea></div>
+
+      <!-- Sticker-specific fields (shown only for sticker categories) -->
+      <div id="pm-sticker-fields" style="display:none;margin-top:.25rem">
+        <div class="form-section-title" style="margin-top:1rem">Sticker Material & Lamination</div>
+        <div class="form-grid" style="margin-bottom:.75rem">
+          <div class="form-group">
+            <label>Material *</label>
+            <select id="pm-material" onchange="applyPriceMatrix()">
+              <option value="">Select material...</option>
+              <option value="regular_sticker">Regular Sticker</option>
+              <option value="photo_sticker">Photo Sticker</option>
+              <option value="vinyl_glossy">Vinyl Glossy</option>
+              <option value="transparent">Transparent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Lamination</label>
+            <select id="pm-lamination" onchange="applyPriceMatrix()">
+              <option value="">Select lamination...</option>
+              <option value="no_lamination">No Lamination</option>
+              <option value="glossy">Glossy</option>
+              <option value="rainbow">Rainbow</option>
+              <option value="matte">Matte</option>
+              <option value="sparkle">Sparkle</option>
+              <option value="glitter">Glitter</option>
+            </select>
+          </div>
+        </div>
+        <!-- Price reference table -->
+        <div style="font-size:.72rem;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Price Reference (₱) — A4 Sheet / Phototop</div>
+        <div style="overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)">
+          <table style="width:100%;font-size:.75rem;border-collapse:collapse">
+            <thead>
+              <tr style="background:var(--blush)">
+                <th style="padding:.45rem .7rem;text-align:left;font-weight:700;color:var(--rose);border-bottom:1px solid var(--border)">Material</th>
+                <th style="padding:.45rem .7rem;text-align:center;font-weight:600;color:var(--taupe);border-bottom:1px solid var(--border)">No Lam.</th>
+                <th style="padding:.45rem .7rem;text-align:center;font-weight:600;color:var(--taupe);border-bottom:1px solid var(--border)">Glossy</th>
+                <th style="padding:.45rem .7rem;text-align:center;font-weight:600;color:var(--taupe);border-bottom:1px solid var(--border)">Rainbow</th>
+                <th style="padding:.45rem .7rem;text-align:center;font-weight:600;color:var(--taupe);border-bottom:1px solid var(--border)">Matte</th>
+                <th style="padding:.45rem .7rem;text-align:center;font-weight:600;color:var(--taupe);border-bottom:1px solid var(--border)">Sparkle</th>
+                <th style="padding:.45rem .7rem;text-align:center;font-weight:600;color:var(--taupe);border-bottom:1px solid var(--border)">Glitter</th>
+              </tr>
+            </thead>
+            <tbody id="pm-price-table-body"></tbody>
+          </table>
+        </div>
+        <p style="font-size:.72rem;color:var(--text-2);margin-top:.4rem">Selecting material + lamination above auto-fills the price. N/A combos require manual entry.</p>
+      </div>
+
+      <div class="form-group" style="margin-top:.75rem"><label>Description</label><textarea id="pm-desc" rows="2" placeholder="Brief product description..."></textarea></div>
       <div class="form-group"><label>Image URL</label><input type="text" id="pm-image" placeholder="Assets/Actual Product/..."/></div>
       <div style="display:flex;gap:1.5rem;margin-top:.5rem">
         <label class="form-check"><input type="checkbox" id="pm-custom"/> Made to order (custom)</label>
@@ -665,6 +714,28 @@ function timeAgo(iso) {
 }
 const CAT_LABELS = {custom_sticker:'Custom Sticker',custom_keychain:'Custom Keychain',affirmation_sticker:'Affirmation',bookmark:'Bookmark',sticker_sheet:'Sticker Sheet',other:'Other'};
 const PALETTE = ['#C1527A','#F2A7C3','#9B7285','#4A3840','#e8a0b4','#f7c5d8'];
+
+const STICKER_CATEGORIES = ['custom_sticker','affirmation_sticker','sticker_sheet'];
+const STICKER_MATERIALS = [
+  { value:'regular_sticker', label:'Regular Sticker' },
+  { value:'photo_sticker',   label:'Photo Sticker' },
+  { value:'vinyl_glossy',    label:'Vinyl Glossy' },
+  { value:'transparent',     label:'Transparent' },
+];
+const LAMINATION_TYPES = [
+  { value:'no_lamination', label:'No Lam.' },
+  { value:'glossy',        label:'Glossy' },
+  { value:'rainbow',       label:'Rainbow' },
+  { value:'matte',         label:'Matte' },
+  { value:'sparkle',       label:'Sparkle' },
+  { value:'glitter',       label:'Glitter' },
+];
+const STICKER_PRICE_MATRIX = {
+  regular_sticker: { no_lamination:85,  glossy:95,  rainbow:110, matte:95,  sparkle:null, glitter:110 },
+  photo_sticker:   { no_lamination:100, glossy:110, rainbow:130, matte:110, sparkle:150,  glitter:120 },
+  vinyl_glossy:    { no_lamination:120, glossy:135, rainbow:155, matte:135, sparkle:170,  glitter:145 },
+  transparent:     { no_lamination:110, glossy:null, rainbow:null, matte:null, sparkle:null, glitter:null },
+};
 
 // ══════════════════════════════════════════════════
 // DATABASE (localStorage)
@@ -1286,7 +1357,7 @@ function renderProducts() {
           ${p.image_url ? `<img src="${p.image_url}" class="product-img" onerror="this.style.display='none'"/>` : `<div class="product-img" style="display:flex;align-items:center;justify-content:center;font-size:1.1rem">✦</div>`}
           <div>
             <div style="font-weight:500">${p.name}</div>
-            <div style="font-size:.72rem;color:var(--text-2)">${p.sku||'—'}</div>
+            <div style="font-size:.72rem;color:var(--text-2)">${p.sku||'—'}${p.material ? ' · ' + STICKER_MATERIALS.find(m=>m.value===p.material)?.label : ''}${p.lamination ? ' / ' + LAMINATION_TYPES.find(l=>l.value===p.lamination)?.label : ''}</div>
           </div>
         </div>
       </td>
@@ -1326,6 +1397,12 @@ function openProductModal(id) {
   document.getElementById('pm-image').value = p?.image_url || '';
   document.getElementById('pm-custom').checked = p?.is_custom || false;
   document.getElementById('pm-active').checked = p?.is_active !== false;
+  document.getElementById('pm-material').value = p?.material || '';
+  document.getElementById('pm-lamination').value = p?.lamination || '';
+  // Show/hide sticker section based on category
+  const isSticker = STICKER_CATEGORIES.includes(p?.category || '');
+  document.getElementById('pm-sticker-fields').style.display = isSticker ? 'block' : 'none';
+  buildPriceTable();
   openModal('product-modal');
 }
 
@@ -1333,6 +1410,44 @@ function onProductCategoryChange() {
   const cat = document.getElementById('pm-category').value;
   if (cat && !document.getElementById('pm-id').value) {
     document.getElementById('pm-sku').value = genSKU(cat);
+  }
+  const isSticker = STICKER_CATEGORIES.includes(cat);
+  document.getElementById('pm-sticker-fields').style.display = isSticker ? 'block' : 'none';
+  if (isSticker) buildPriceTable();
+  if (!isSticker) {
+    document.getElementById('pm-material').value = '';
+    document.getElementById('pm-lamination').value = '';
+  }
+}
+
+function buildPriceTable() {
+  const tbody = document.getElementById('pm-price-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = STICKER_MATERIALS.map(mat => {
+    const row = STICKER_PRICE_MATRIX[mat.value];
+    const cells = LAMINATION_TYPES.map(lam => {
+      const price = row[lam.value];
+      return `<td style="padding:.4rem .7rem;text-align:center;border-bottom:1px solid var(--border);color:${price ? 'var(--text)' : 'var(--text-2)'}">${price !== null && price !== undefined ? '₱' + price : '<span style="font-size:.7rem">N/A</span>'}</td>`;
+    }).join('');
+    return `<tr>
+      <td style="padding:.4rem .7rem;font-weight:600;color:var(--taupe);border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap">${mat.label}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+}
+
+function applyPriceMatrix() {
+  const material = document.getElementById('pm-material').value;
+  const lamination = document.getElementById('pm-lamination').value;
+  if (!material || !lamination) return;
+  const row = STICKER_PRICE_MATRIX[material];
+  if (!row) return;
+  const price = row[lamination];
+  if (price !== null && price !== undefined) {
+    document.getElementById('pm-price').value = price;
+  } else {
+    document.getElementById('pm-price').value = '';
+    showToast('N/A combination — enter price manually', 'error');
   }
 }
 
@@ -1346,6 +1461,7 @@ function saveProduct() {
   if (!category) { showToast('Category is required', 'error'); return; }
   if (!price || price <= 0) { showToast('Valid price is required', 'error'); return; }
 
+  const isSticker = STICKER_CATEGORIES.includes(category);
   const data = {
     sku: document.getElementById('pm-sku').value.trim() || genSKU(category),
     name, category, price,
@@ -1355,6 +1471,8 @@ function saveProduct() {
     image_url: document.getElementById('pm-image').value.trim(),
     is_custom: document.getElementById('pm-custom').checked,
     is_active: document.getElementById('pm-active').checked,
+    material: isSticker ? (document.getElementById('pm-material').value || null) : null,
+    lamination: isSticker ? (document.getElementById('pm-lamination').value || null) : null,
   };
 
   if (id) {
