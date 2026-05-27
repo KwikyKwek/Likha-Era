@@ -675,19 +675,19 @@ const DB = {
   set(k, v) { localStorage.setItem(this._key(k), JSON.stringify(v)); },
 
   init() {
-    if (this.get('initialized')) return;
-    this.set('credentials', { email: 'likhaera414@gmail.com', password: 'Pepper.Cajun_26' });
-    this.set('products', INITIAL_PRODUCTS);
-    this.set('orders', []);
-    this.set('audit_logs', []);
-    this.set('store', { name:'LIKHAera', email:'Likhaera4114@gmail.com', instagram:'@Likhaera' });
-    this.set('initialized', true);
-  }
-  // Migrate old default credentials to new ones
-  const creds = this.get('credentials');
-  if (creds && (creds.email === 'admin@likhaera.com' || creds.password === 'Likhaera2026!')) {
-    this.set('credentials', { email: 'likhaera414@gmail.com', password: 'Pepper.Cajun_26' });
-  }
+    if (!this.get('initialized')) {
+      this.set('credentials', { email: 'likhaera414@gmail.com', password: 'Pepper.Cajun_26' });
+      this.set('products', INITIAL_PRODUCTS);
+      this.set('orders', []);
+      this.set('audit_logs', []);
+      this.set('store', { name:'LIKHAera', email:'Likhaera4114@gmail.com', instagram:'@Likhaera' });
+      this.set('initialized', true);
+    }
+    // Migrate old default credentials to new ones
+    const creds = this.get('credentials');
+    if (creds && (creds.email === 'admin@likhaera.com' || creds.password === 'Likhaera2026!')) {
+      this.set('credentials', { email: 'likhaera414@gmail.com', password: 'Pepper.Cajun_26' });
+    }
   },
 
   // Credentials
