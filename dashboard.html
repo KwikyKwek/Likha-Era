@@ -349,6 +349,7 @@ nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
           <div class="tcard" style="margin-bottom:1rem">
             <div class="thead"><h3>Order Header</h3></div>
             <div class="mbody">
+              <div class="frow"><div class="fg"><label>First Name *</label><input type="text" id="no-fname" class="fc" placeholder="First name"/></div><div class="fg"><label>Last Name *</label><input type="text" id="no-lname" class="fc" placeholder="Last name"/></div></div>
               <div class="frow"><div class="fg"><label>Customer Email *</label><input type="email" id="no-email" class="fc" placeholder="customer@email.com"/></div><div class="fg"><label>Order Reference</label><input type="text" id="no-ref" class="fc" placeholder="Shopee/TikTok order #"/></div></div>
               <div class="fg"><label>Description</label><input type="text" id="no-desc" class="fc" placeholder="Brief order description"/></div>
               <div class="fg" style="max-width:280px">
@@ -536,12 +537,7 @@ nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
         <button class="inv-type-btn active" id="invTypeFull" onclick="setInvType('full')">&#x2714; Full Payment (100%)</button>
         <button class="inv-type-btn" id="invTypeDown" onclick="setInvType('down')">Down Payment (50%)</button>
       </div>
-      <div class="frow">
-        <div class="fg"><label>Customer Name <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input type="text" id="invCustName" class="fc" placeholder="e.g. Maria Santos"/></div>
-        <div class="fg"><label>Contact Number <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input type="text" id="invContact" class="fc" placeholder="09XX-XXX-XXXX"/></div>
-      </div>
-      <div class="fg"><label>Discount Amount (PHP)</label><input type="number" id="invDiscount" class="fc" value="0" min="0" step="0.01" oninput="updateInvCalc()"/></div>
-      <div class="inv-amt-box" id="invCalcBox"><div style="color:var(--muted);font-size:.875rem">Loading order data…</div></div>
+      <div class="inv-amt-box" id="invCalcBox"></div>
       <div class="eMsg" id="invErr"></div>
     </div>
     <div class="mfoot">
@@ -869,7 +865,10 @@ function calcTots(){
   $('tTotal').textContent=fc(fin);
 }
 async function submitOrder(){
+  const fname=gv('no-fname').trim(),lname=gv('no-lname').trim();
   const email=gv('no-email'),stat=gval('no-stat'),pay=gval('no-pay'),plat=gval('no-plat');
+  if(!fname)return toast('First name required.','error');
+  if(!lname)return toast('Last name required.','error');
   if(!email)return toast('Customer email required.','error');
   if(!stat)return toast('Select a status.','error');
   if(!pay)return toast('Select a payment method.','error');
@@ -892,9 +891,19 @@ async function submitOrder(){
     const tot=S.lines.reduce((s,l)=>s+(l.finalCost*(l.quantity||1)),0);
     const dateStr=gv('no-date');
     const orderCreatedAt=dateStr?firebase.firestore.Timestamp.fromDate(new Date(dateStr+'T00:00:00')):TS();
+    // Save or update CustomerInfo
+    let userId=null;
+    const ciSnap=await db.collection('CustomerInfo').where('email','==',email).limit(1).get();
+    if(!ciSnap.empty){
+      userId=ciSnap.docs[0].id;
+      await db.collection('CustomerInfo').doc(userId).update({firstName:fname,lastName:lname,updatedAt:TS()});
+    }else{
+      const ciRef=await db.collection('CustomerInfo').add({firstName:fname,lastName:lname,email,createdAt:TS(),updatedAt:TS()});
+      userId=ciRef.id;
+    }
     const batch=db.batch();
     const oRef=db.collection('Orders').doc();
-    batch.set(oRef,{orderLabel:lbl,email,orderDescription:gv('no-desc'),orderReference:gv('no-ref'),statusId:stat,paymentMethodId:pay,platformId:plat,notes:gv('no-notes'),totalCost:tot,currency:'PHP',orderCreatedAt,updatedAt:TS(),userId:null});
+    batch.set(oRef,{orderLabel:lbl,email,firstName:fname,lastName:lname,orderDescription:gv('no-desc'),orderReference:gv('no-ref'),statusId:stat,paymentMethodId:pay,platformId:plat,notes:gv('no-notes'),totalCost:tot,currency:'PHP',orderCreatedAt,updatedAt:TS(),userId});
     for(const l of S.lines){
       const lRef=db.collection('orderline').doc();
       batch.set(lRef,{orderId:oRef.id,itemId:l.itemId,itemLabel:l.itemLabel,baseCost:l.baseCost,finalCost:l.finalCost,quantity:l.quantity||1,notes:l.notes||''});
@@ -909,7 +918,7 @@ async function submitOrder(){
   finally{btn.disabled=false;btn.textContent='Create Order';}
 }
 function clearOrder(){
-  ['no-email','no-desc','no-ref','no-notes'].forEach(id=>{const e=$(id);if(e)e.value='';});
+  ['no-fname','no-lname','no-email','no-desc','no-ref','no-notes'].forEach(id=>{const e=$(id);if(e)e.value='';});
   ['no-stat','no-pay','no-plat'].forEach(id=>{const e=$(id);if(e)e.selectedIndex=0;});
   const el=$('no-date');if(el&&el._flatpickr)el._flatpickr.setDate(new Date(),true);
   S.lines=[];addLine();
@@ -1283,20 +1292,21 @@ async function getOrdData(oid){
   return{o,lines};
 }
 
-const INV={oid:null,type:'full',o:null,lines:[]};
+const INV={oid:null,type:'full',o:null,lines:[],customerName:''};
 
 async function openInvModal(oid){
-  INV.oid=oid;INV.type='full';INV.o=null;INV.lines=[];
-  if($('invCustName'))$('invCustName').value='';
-  if($('invContact'))$('invContact').value='';
-  if($('invDiscount'))$('invDiscount').value='0';
+  INV.oid=oid;INV.type='full';INV.o=null;INV.lines=[];INV.customerName='';
   hideE('invErr');
   setInvType('full');
-  $('invCalcBox').innerHTML='<div style="color:var(--muted);font-size:.875rem">Loading…</div>';
+  $('invCalcBox').innerHTML='';
   openMov('invMov');
   try{
     const{o,lines}=await getOrdData(oid);
     INV.o=o;INV.lines=lines;
+    if(o.userId){
+      const cdoc=await db.collection('CustomerInfo').doc(o.userId).get();
+      if(cdoc.exists){const cd=cdoc.data();INV.customerName=`${cd.firstName||''} ${cd.lastName||''}`.trim();}
+    }
     updateInvCalc();
   }catch(e){
     $('invCalcBox').innerHTML=`<div style="color:var(--red);font-size:.875rem">${e.message}</div>`;
@@ -1315,22 +1325,18 @@ function setInvType(type){
 function updateInvCalc(){
   if(!INV.lines||!INV.lines.length)return;
   const sub=INV.lines.reduce((s,l)=>s+(l.finalCost||0)*(l.quantity||1),0);
-  const disc=parseFloat($('invDiscount')?.value)||0;
-  const total=Math.max(0,sub-disc);
-  const pay=INV.type==='down'?total*0.5:total;
+  const pay=INV.type==='down'?sub*0.5:sub;
   const fmt=n=>`&#8369;${Number(n).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
   $('invCalcBox').innerHTML=`
     <div class="inv-amt-row"><span>Subtotal</span><span>${fmt(sub)}</span></div>
-    ${disc>0?`<div class="inv-amt-row" style="color:#065F46"><span>Discount</span><span>&minus; ${fmt(disc)}</span></div>`:''}
-    <div class="inv-amt-row total"><span>Total Due</span><span>${fmt(total)}</span></div>
+    <div class="inv-amt-row total"><span>Total Due</span><span>${fmt(sub)}</span></div>
     ${INV.type==='down'?`<div style="display:flex;justify-content:space-between;align-items:center;background:#FFF8E7;border-radius:8px;padding:.55rem .75rem;margin-top:.5rem;color:#92400E;font-weight:700;font-size:.875rem"><span>Down Payment (50%)</span><span>${fmt(pay)}</span></div>`:''}
   `;
 }
 
-function buildInvoiceHTML(o,lines,type,disc,custName,contact,invoiceNo){
+function buildInvoiceHTML(o,lines,type,custName,invoiceNo){
   const sub=lines.reduce((s,l)=>s+(l.finalCost||0)*(l.quantity||1),0);
-  const discAmt=parseFloat(disc)||0;
-  const totalDue=Math.max(0,sub-discAmt);
+  const totalDue=sub;
   const payAmt=type==='down'?totalDue*0.5:totalDue;
   const isDown=type==='down';
   const today=new Date();
@@ -1357,12 +1363,10 @@ function buildInvoiceHTML(o,lines,type,disc,custName,contact,invoiceNo){
 <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:26px;border-bottom:3px solid #C1527A;margin-bottom:24px">
   <div>
     <div style="font-size:26px;font-weight:900;color:#C1527A;letter-spacing:-0.03em">LIKHA-ERA</div>
-    <div style="font-size:10px;color:#9B7285;margin-top:4px;text-transform:uppercase;letter-spacing:.08em">Custom Sticker Shop</div>
   </div>
   <div style="text-align:right">
     <div style="font-size:44px;font-weight:900;color:#F2A7C3;text-transform:uppercase;letter-spacing:.05em;line-height:1">Invoice</div>
     <table style="margin-top:10px;font-size:10px;margin-left:auto;border-collapse:collapse">
-      <tr><td style="color:#9B7285;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 14px 2px 0;text-align:right">Invoice No.</td><td style="color:#4A3840;font-weight:700;text-align:left">${invoiceNo}</td></tr>
       <tr><td style="color:#9B7285;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 14px 2px 0;text-align:right">Order No.</td><td style="color:#4A3840;font-weight:700;text-align:left">${o.orderLabel}</td></tr>
       <tr><td style="color:#9B7285;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 14px 2px 0;text-align:right">Invoice Date</td><td style="color:#4A3840;text-align:left">${todayFmt}</td></tr>
       <tr><td style="color:#9B7285;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 14px 2px 0;text-align:right">Order Date</td><td style="color:#4A3840;text-align:left">${ordDateFmt}</td></tr>
@@ -1376,7 +1380,6 @@ function buildInvoiceHTML(o,lines,type,disc,custName,contact,invoiceNo){
   <div style="font-size:9px;font-weight:700;color:#9B7285;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Bill To</div>
   ${custName?`<div style="font-size:16px;font-weight:800;color:#4A3840;margin-bottom:4px">${custName}</div>`:''}
   <div style="font-size:12px;color:#9B7285;margin-top:2px">&#9993; ${o.email||'—'}</div>
-  ${contact?`<div style="font-size:12px;color:#9B7285;margin-top:3px">&#128241; ${contact}</div>`:''}
   ${o.orderReference?`<div style="font-size:12px;color:#4A3840;font-weight:600;margin-top:7px">Ref: ${o.orderReference}</div>`:''}
 </div>
 <table style="width:100%;border-collapse:collapse">
@@ -1393,7 +1396,6 @@ function buildInvoiceHTML(o,lines,type,disc,custName,contact,invoiceNo){
 <div style="display:flex;justify-content:flex-end;margin-top:22px">
   <div style="width:268px">
     <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#4A3840"><span>Subtotal</span><span>${fmt(sub)}</span></div>
-    ${discAmt>0?`<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#065F46"><span>Discount</span><span>&minus; ${fmt(discAmt)}</span></div>`:''}
     <div style="border-top:1.5px solid #EDD9E7;margin:8px 0"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;background:#C1527A;color:#fff;padding:11px 14px;border-radius:8px;font-size:15px;font-weight:800"><span>Total Due</span><span>${fmt(totalDue)}</span></div>
     ${isDown?`<div style="background:#FFF8E7;border-radius:8px;padding:13px 14px;margin-top:8px">
@@ -1422,18 +1424,15 @@ function buildInvoiceHTML(o,lines,type,disc,custName,contact,invoiceNo){
 
 async function genInvoice(){
   if(!INV.o||!INV.lines)return toast('Order data not loaded yet.','error');
-  const custName=gv('invCustName');
-  const contact=gv('invContact');
-  const disc=parseFloat($('invDiscount')?.value)||0;
+  const custName=INV.customerName||'';
   const sub=INV.lines.reduce((s,l)=>s+(l.finalCost||0)*(l.quantity||1),0);
-  const totalDue=Math.max(0,sub-disc);
-  const payAmt=INV.type==='down'?totalDue*0.5:totalDue;
+  const payAmt=INV.type==='down'?sub*0.5:sub;
   const today=new Date();
   const yyyymmdd=today.getFullYear()+String(today.getMonth()+1).padStart(2,'0')+String(today.getDate()).padStart(2,'0');
   const suffix=INV.type==='down'?'DP':'FP';
   const invoiceNo=`INV-${INV.o.orderLabel}-${suffix}`;
   const filename=`${invoiceNo}_${yyyymmdd}.pdf`;
-  const html=buildInvoiceHTML(INV.o,INV.lines,INV.type,disc,custName,contact,invoiceNo);
+  const html=buildInvoiceHTML(INV.o,INV.lines,INV.type,custName,invoiceNo);
   const btn=$('invDlBtn');
   const orig=btn.innerHTML;
   btn.disabled=true;btn.innerHTML='<span class="spin"></span> Generating…';
@@ -1447,8 +1446,8 @@ async function genInvoice(){
     await html2pdf().set(opt).from(html).save();
     await db.collection('invoices').add({
       orderId:INV.oid,orderLabel:INV.o.orderLabel,invoiceNo,type:INV.type,
-      customerName:custName||null,customerEmail:INV.o.email||null,contactNumber:contact||null,
-      subtotal:sub,discount:disc,totalDue,paymentAmount:payAmt,
+      customerName:custName||null,customerEmail:INV.o.email||null,
+      subtotal:sub,totalDue:sub,paymentAmount:payAmt,
       createdAt:TS(),createdBy:S.user?.email||'system'
     });
     await audit('GENERATE_INVOICE','invoices',invoiceNo,{orderId:INV.oid,type:INV.type,amount:payAmt});

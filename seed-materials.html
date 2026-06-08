@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>LIKHA-ERA — Materials Initializer</title>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey:            "AIzaSyCdIg-O2BYIl7Pp3CtaFx8z0hbyBUiZFCg",
+      authDomain:        "likhaera-99a2c.firebaseapp.com",
+      projectId:         "likhaera-99a2c",
+      storageBucket:     "likhaera-99a2c.firebasestorage.app",
+      messagingSenderId: "972622064907",
+      appId:             "1:972622064907:web:e09ae7a5a6fda58920860e"
+    });
+    const db = firebase.firestore();
+    const ts = () => firebase.firestore.FieldValue.serverTimestamp();
+  </script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#FFF8F5;color:#2A1520;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem}
+    .card{background:#fff;border-radius:20px;padding:2.5rem;max-width:740px;width:100%;box-shadow:0 8px 40px rgba(194,82,122,.12)}
+    h1{font-size:1.4rem;color:#C1527A;margin-bottom:.3rem;font-weight:800}
+    .sub{color:#9B7285;font-size:.875rem;margin-bottom:1.5rem}
+    .warn{background:#FFF8E7;border:1.5px solid #FFD166;border-radius:10px;padding:.75rem 1rem;margin-bottom:1.5rem;font-size:.8125rem;color:#8A6A00}
+    .section-label{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#C1527A;margin:1.25rem 0 .5rem}
+    .grid{display:grid;gap:.4rem;margin-bottom:1rem}
+    .row{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;background:#FDE8F0;border-radius:10px;font-size:.8rem}
+    .rn{font-weight:700;color:#C1527A;min-width:220px}
+    .rd{color:#9B7285;flex:1}
+    .rb{font-size:.65rem;font-weight:700;padding:.15rem .5rem;border-radius:99px;background:#9B7285;color:#fff;white-space:nowrap}
+    .rs{margin-left:auto;font-size:1rem;min-width:1.2rem;text-align:center}
+    .btn{width:100%;padding:1rem;background:#C1527A;color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:1.5rem;transition:background .2s}
+    .btn:hover{background:#A83D5A}
+    .btn:disabled{background:#E8A4BE;cursor:not-allowed}
+    .log{margin-top:1.5rem;background:#2A1520;border-radius:12px;padding:1rem 1.25rem;font-family:monospace;font-size:.78rem;color:#FDE8F0;max-height:340px;overflow-y:auto;display:none}
+    .log.v{display:block}
+    .ll{padding:.15rem 0}
+    .ll.ok{color:#7BF5A0}
+    .ll.er{color:#FF8A8A}
+    .ll.in{color:#F2A7C3}
+    .ll.hd{color:#FFD166;font-weight:bold}
+    .sbox{margin-top:1.5rem;background:#F0FFF4;border:1.5px solid #7BF5A0;border-radius:12px;padding:1.2rem 1.5rem;text-align:center;display:none}
+    .sbox.v{display:block}
+    .sbox p{color:#1a7a3c;font-weight:600;margin-bottom:.35rem}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>✦ LIKHA-ERA — Materials Initializer</h1>
+  <p class="sub">Creates the <strong>materials</strong> Firestore collection with 9 starter records.</p>
+  <div class="warn">⚠️ Safe to run even on a live database — each document uses <code>.add()</code> so no existing data is overwritten. If you already have materials, skip this.</div>
+
+  <p class="section-label">Materials to be created (9 records)</p>
+  <div class="grid">
+    <div class="row"><span class="rn">A4 Matte Sticker Paper</span><span class="rd">Primary printing substrate</span><span class="rb">Paper</span><span class="rs">⏳</span></div>
+    <div class="row"><span class="rn">A4 Glossy Sticker Paper</span><span class="rd">Photo-quality output</span><span class="rb">Paper</span><span class="rs">⏳</span></div>
+    <div class="row"><span class="rn">Vinyl Sticker Roll</span><span class="rd">Weatherproof / outdoor stickers</span><span class="rb">Paper</span><span class="rs">⏳</span></div>
+    <div class="row"><span class="rn">Cold Lamination Film (Matte)</span><span class="rd">Protective matte finish overlay</span><span class="rb">Lamination</span><span class="rs">⏳</span></div>
+    <div class="row"><span class="rn">Cold Lamination Film (Glossy)</span><span class="rd">Protective glossy finish overlay</span><span class="rb">Lamination</span><span class="rs">⏳</span></div>
+    <div class="row"><span class="rn">Acrylic Sheet 3mm (Clear)</span><span class="rd">For keychains and standees</span><span class="rb">Acrylic</span><span class="rs">⏳</span></div>
+    <div class="row"><span class="rn">OPP Cellophane Bags</span><span class="rd">Clear packaging per order</span><span class="rb">Packaging</span><span class="rs">⏳</span></div>
+    <div class="row"><span class="rn">Kraft Paper Thank-You Cards</span><span class="rd">Printed thank-you inserts</span><span class="rb">Packaging</span><span class="rs">⏳</span></div>
+    <div class="row"><span class="rn">Inkjet Ink Set (CMYK)</span><span class="rd">Printer ink cartridges</span><span class="rb">Ink</span><span class="rs">⏳</span></div>
+  </div>
+
+  <button class="btn" id="seedBtn" onclick="seedMaterials()">Create Materials Collection →</button>
+  <div class="log" id="log"></div>
+  <div class="sbox" id="sbox">
+    <p>✦ materials collection created successfully!</p>
+    <p style="color:#9B7285;font-size:.85rem">Open your Firestore console — the <strong>materials</strong> collection now exists.</p>
+    <p style="color:#9B7285;font-size:.85rem;margin-top:.25rem">Return to <a href="/dashboard" style="color:#C1527A;font-weight:700">/dashboard</a> → Materials tab to manage them.</p>
+  </div>
+</div>
+
+<script>
+const MATERIALS = [
+  {
+    name: 'A4 Matte Sticker Paper',
+    category: 'Paper',
+    description: 'Standard A4 matte sticker paper for everyday sticker printing',
+    supplierName: 'Printcraft PH',
+    supplierLink: '',
+    purchasePrice: 8.00,
+    quantityPurchased: 500,
+    currentStock: 500,
+    unit: 'sheets',
+    lowStockThreshold: 50
+  },
+  {
+    name: 'A4 Glossy Sticker Paper',
+    category: 'Paper',
+    description: 'High-gloss A4 sticker paper for vivid photo-quality prints',
+    supplierName: 'Printcraft PH',
+    supplierLink: '',
+    purchasePrice: 10.00,
+    quantityPurchased: 300,
+    currentStock: 300,
+    unit: 'sheets',
+    lowStockThreshold: 30
+  },
+  {
+    name: 'Vinyl Sticker Roll',
+    category: 'Paper',
+    description: 'Waterproof vinyl roll for outdoor and weatherproof stickers',
+    supplierName: 'SignFlex Supply',
+    supplierLink: '',
+    purchasePrice: 1200.00,
+    quantityPurchased: 3,
+    currentStock: 3,
+    unit: 'rolls',
+    lowStockThreshold: 1
+  },
+  {
+    name: 'Cold Lamination Film (Matte)',
+    category: 'Lamination',
+    description: 'Protective matte-finish lamination for stickers and bookmarks',
+    supplierName: 'Printcraft PH',
+    supplierLink: '',
+    purchasePrice: 850.00,
+    quantityPurchased: 2,
+    currentStock: 2,
+    unit: 'rolls',
+    lowStockThreshold: 1
+  },
+  {
+    name: 'Cold Lamination Film (Glossy)',
+    category: 'Lamination',
+    description: 'Protective glossy-finish lamination for premium look',
+    supplierName: 'Printcraft PH',
+    supplierLink: '',
+    purchasePrice: 820.00,
+    quantityPurchased: 2,
+    currentStock: 2,
+    unit: 'rolls',
+    lowStockThreshold: 1
+  },
+  {
+    name: 'Acrylic Sheet 3mm (Clear)',
+    category: 'Acrylic',
+    description: 'Clear 3mm acrylic sheets cut for keychains and chibi standees',
+    supplierName: 'Acrylic World PH',
+    supplierLink: '',
+    purchasePrice: 350.00,
+    quantityPurchased: 10,
+    currentStock: 10,
+    unit: 'sheets',
+    lowStockThreshold: 3
+  },
+  {
+    name: 'OPP Cellophane Bags',
+    category: 'Packaging',
+    description: 'Transparent self-sealing cellophane bags for individual order packaging',
+    supplierName: 'Shopee',
+    supplierLink: '',
+    purchasePrice: 180.00,
+    quantityPurchased: 1,
+    currentStock: 200,
+    unit: 'pcs',
+    lowStockThreshold: 30
+  },
+  {
+    name: 'Kraft Paper Thank-You Cards',
+    category: 'Packaging',
+    description: 'Printed kraft paper thank-you inserts included with every order',
+    supplierName: 'Local Print Shop',
+    supplierLink: '',
+    purchasePrice: 3.00,
+    quantityPurchased: 200,
+    currentStock: 200,
+    unit: 'pcs',
+    lowStockThreshold: 20
+  },
+  {
+    name: 'Inkjet Ink Set (CMYK)',
+    category: 'Ink',
+    description: 'Compatible CMYK ink cartridge set for sticker and photo printing',
+    supplierName: 'InkZone PH',
+    supplierLink: '',
+    purchasePrice: 650.00,
+    quantityPurchased: 2,
+    currentStock: 2,
+    unit: 'packs',
+    lowStockThreshold: 1
+  }
+];
+
+function logMsg(msg, type='in'){
+  const el = document.getElementById('log');
+  el.classList.add('v');
+  const d = document.createElement('div');
+  d.className = `ll ${type}`;
+  d.textContent = msg;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function seedMaterials(){
+  const btn = document.getElementById('seedBtn');
+  btn.disabled = true;
+  btn.textContent = 'Creating…';
+  logMsg('=== LIKHA-ERA MATERIALS INIT ===', 'hd');
+  logMsg('');
+
+  const rows = document.querySelectorAll('.grid .row .rs');
+  let ok = 0, fail = 0;
+
+  for(let i = 0; i < MATERIALS.length; i++){
+    const m = MATERIALS[i];
+    const statusEl = rows[i];
+    logMsg(`  Writing "${m.name}"…`);
+    try{
+      await db.collection('materials').add({
+        ...m,
+        createdAt: ts(),
+        updatedAt: ts()
+      });
+      statusEl.textContent = '✅';
+      logMsg(`  ✓ "${m.name}" saved`, 'ok');
+      ok++;
+    }catch(e){
+      statusEl.textContent = '❌';
+      logMsg(`  ✗ "${m.name}": ${e.message}`, 'er');
+      fail++;
+    }
+  }
+
+  logMsg('');
+  if(fail === 0){
+    logMsg(`=== DONE — ${ok} materials created ===`, 'hd');
+    document.getElementById('sbox').classList.add('v');
+  } else {
+    logMsg(`=== DONE — ${ok} ok, ${fail} failed. Check Firestore security rules. ===`, 'er');
+    btn.disabled = false;
+    btn.textContent = 'Retry →';
+  }
+}
+</script>
+</body>
+</html>
