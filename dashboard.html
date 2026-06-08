@@ -8,6 +8,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root{
@@ -63,7 +66,7 @@ select.fc{cursor:pointer}
 .slogo span{color:var(--pink);font-size:.72rem}
 nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
 .nsec{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.28);padding:.5rem .5rem .2rem;margin-top:.5rem}
-.nitem{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.55);font-size:.8375rem;font-weight:500;transition:all .18s;margin-bottom:.12rem;border:none;background:transparent;width:100%;text-align:left}
+.nitem{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.55);font-size:.8375rem;font-weight:500;transition:all .18s;margin-bottom:.12rem;border:none;background:transparent;width:100%;text-align:left;text-decoration:none}
 .nitem:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.9)}
 .nitem.active{background:var(--rose);color:#fff}
 .nitem svg{width:17px;height:17px;flex-shrink:0}
@@ -166,8 +169,8 @@ nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
 .pager button:disabled{opacity:.4;cursor:not-allowed}
 .toggle{position:relative;width:38px;height:21px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0;position:absolute}
-.tsl{position:absolute;inset:0;background:#DDD;border-radius:21px;cursor:pointer;transition:.18s}
-.tsl:before{content:'';position:absolute;width:15px;height:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.18s}
+.tsl{position:absolute;inset:0;background:#B89AAA;border-radius:21px;cursor:pointer;transition:.22s}
+.tsl:before{content:'';position:absolute;width:15px;height:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.22s;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .toggle input:checked + .tsl{background:var(--rose)}
 .toggle input:checked + .tsl:before{transform:translateX(17px)}
 .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .55s linear infinite;display:inline-block}
@@ -178,6 +181,50 @@ nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
 @keyframes sIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes sOut{to{transform:translateX(120%);opacity:0}}
 .empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+
+/* ── FLATPICKR BRAND OVERRIDES ── */
+.flatpickr-calendar{border-radius:16px!important;border:1.5px solid var(--border)!important;box-shadow:0 12px 40px rgba(194,82,122,.2)!important;font-family:'Segoe UI',system-ui,sans-serif!important}
+.flatpickr-months{background:var(--cream)!important;border-radius:14px 14px 0 0!important;padding:.2rem 0!important}
+.flatpickr-months .flatpickr-month{color:var(--taupe)!important}
+.flatpickr-current-month .flatpickr-monthDropdown-months{color:var(--taupe)!important}
+.flatpickr-current-month input.cur-year{color:var(--taupe)!important}
+.flatpickr-weekdays{background:var(--blush)!important}
+.flatpickr-weekday{color:var(--mauve)!important;font-weight:700!important;font-size:.72rem!important}
+.flatpickr-day{border-radius:9px!important;color:var(--taupe)!important;font-size:.8125rem!important}
+.flatpickr-day:hover{background:var(--blush)!important;border-color:var(--pink)!important}
+.flatpickr-day.selected,.flatpickr-day.selected:hover{background:var(--rose)!important;border-color:var(--rose)!important;color:#fff!important;font-weight:700!important}
+.flatpickr-day.today{border-color:var(--pink)!important;color:var(--rose)!important;font-weight:700!important}
+.flatpickr-day.today:hover{background:var(--blush)!important}
+.flatpickr-prev-month,.flatpickr-next-month{color:var(--mauve)!important;fill:var(--mauve)!important;padding:7px 10px!important}
+.flatpickr-prev-month:hover svg,.flatpickr-next-month:hover svg{fill:var(--rose)!important}
+.numInputWrapper:hover{background:var(--blush)!important}
+/* ── QUICK LINKS ── */
+.quick-link{display:flex;align-items:center;justify-content:center;gap:.55rem;padding:.875rem 1.25rem;background:#fff;border:1.5px solid var(--border);border-radius:14px;text-decoration:none;color:var(--taupe);font-size:.875rem;font-weight:600;box-shadow:0 2px 8px rgba(194,82,122,.07);transition:border-color .2s,background .2s,box-shadow .2s,transform .18s;flex:1}
+.quick-link:hover{border-color:var(--pink);background:var(--blush);box-shadow:0 6px 20px rgba(194,82,122,.15);transform:translateY(-2px);color:var(--rose)}
+.quick-link svg{flex-shrink:0;color:var(--rose)}
+/* ── NOTIFICATIONS ── */
+.notif-badge{min-width:16px;height:16px;background:#EF4444;color:#fff;border-radius:99px;font-size:.58rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;margin-left:auto;flex-shrink:0;line-height:1}
+.nitem .notif-badge{display:none}
+.notif-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:.875rem 1.1rem;margin-bottom:.6rem;transition:background .15s}
+.notif-card.unread{border-left:3px solid var(--rose);background:var(--blush)}
+.notif-card.unread .nc-title{font-weight:700;color:var(--taupe)}
+.nc-title{font-size:.875rem;font-weight:600;margin-bottom:.2rem}
+.nc-msg{font-size:.8rem;color:var(--muted);margin-bottom:.35rem}
+.nc-meta{font-size:.72rem;color:var(--muted)}
+/* ── STOCK INFO ── */
+.stock-tag{font-size:.68rem;font-weight:600;padding:.15rem .5rem;border-radius:99px;display:inline-block;margin-top:.2rem}
+.stock-ok{background:#ECFDF5;color:#065F46}
+.stock-low{background:#FFF8E7;color:#92400E}
+.stock-out{background:#FEF2F2;color:#991B1B}
+/* ── INVOICE ── */
+.btn-invoice{background:var(--blush);color:var(--rose);border:1.5px solid var(--pink)}
+.btn-invoice:hover{background:var(--pink);color:#fff}
+.inv-type-wrap{display:flex;background:var(--blush);border-radius:10px;padding:.25rem;margin-bottom:1rem}
+.inv-type-btn{flex:1;padding:.5rem .75rem;border:none;border-radius:8px;cursor:pointer;font-size:.8125rem;font-weight:600;color:var(--muted);background:transparent;transition:all .2s;text-align:center}
+.inv-type-btn.active{background:#fff;color:var(--rose);box-shadow:0 2px 8px rgba(193,82,122,.18)}
+.inv-amt-box{background:var(--blush);border-radius:10px;padding:.875rem 1rem;margin-top:.75rem}
+.inv-amt-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;font-size:.875rem;color:var(--taupe)}
+.inv-amt-row.total{font-weight:800;color:var(--rose);font-size:1rem;border-top:1.5px solid var(--pink);margin-top:.5rem;padding-top:.75rem}
 </style>
 </head>
 <body>
@@ -231,6 +278,25 @@ nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/></svg>
         Items
       </button>
+      <button class="nitem" data-page="materials" onclick="go('materials')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        Materials
+      </button>
+      <div class="nsec">Monitor</div>
+      <button class="nitem" data-page="notifications" onclick="go('notifications')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        Notifications
+        <span class="notif-badge" id="notifBadge">0</span>
+      </button>
+      <div class="nsec">Tools</div>
+      <a class="nitem" href="https://likha-era.vercel.app/social-generator" target="_blank" rel="noopener">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path stroke-linecap="round" d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+        Social Generator
+      </a>
+      <a class="nitem" href="https://likha-era.vercel.app/watermark" target="_blank" rel="noopener">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Watermark Tool
+      </a>
       <div class="nsec admin-gated" id="adminSec">Settings</div>
       <button class="nitem admin-gated" id="usersNav" data-page="users" onclick="go('users')">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -285,6 +351,13 @@ nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
             <div class="mbody">
               <div class="frow"><div class="fg"><label>Customer Email *</label><input type="email" id="no-email" class="fc" placeholder="customer@email.com"/></div><div class="fg"><label>Order Reference</label><input type="text" id="no-ref" class="fc" placeholder="Shopee/TikTok order #"/></div></div>
               <div class="fg"><label>Description</label><input type="text" id="no-desc" class="fc" placeholder="Brief order description"/></div>
+              <div class="fg" style="max-width:280px">
+                <label>Order Date *</label>
+                <div style="position:relative">
+                  <input type="text" id="no-date" class="fc" placeholder="Select date…" style="cursor:pointer;padding-right:2.5rem" readonly/>
+                  <span style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)"><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path stroke-linecap="round" d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                </div>
+              </div>
               <div class="frow3">
                 <div class="fg"><label>Platform *</label><select id="no-plat" class="fc"><option value="">Select…</option></select></div>
                 <div class="fg"><label>Payment *</label><select id="no-pay" class="fc"><option value="">Select…</option></select></div>
@@ -347,6 +420,30 @@ nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
         </div>
       </div>
 
+      <!-- MATERIALS -->
+      <div id="pg-materials" class="pg">
+        <div class="tcard">
+          <div class="fbar">
+            <div class="sbox"><span class="sico"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg></span><input type="text" id="mSearch" class="fc" placeholder="Search materials…" oninput="filterMaterials()"/></div>
+            <select id="mCat" class="fc" style="min-width:150px" onchange="filterMaterials()"><option value="">All Categories</option><option>Paper</option><option>Ink</option><option>Acrylic</option><option>Packaging</option><option>Lamination</option><option>Other</option></select>
+            <button class="btn btn-rose btn-sm" style="margin-left:auto" onclick="openMatModal()">+ Add Material</button>
+          </div>
+          <table class="dt"><thead><tr><th>Material Name</th><th>Category</th><th>Stock</th><th>Unit</th><th>Cost</th><th>Supplier</th><th>Status</th><th>Actions</th></tr></thead><tbody id="mBody"></tbody></table>
+          <div class="pager"><span id="mCount" style="flex:1">0 materials</span><button onclick="pgChange('m',-1)" id="mPrev">‹</button><span id="mPgLbl">1/1</span><button onclick="pgChange('m',1)" id="mNext">›</button></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div id="pg-notifications" class="pg">
+        <div style="max-width:720px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+            <div style="font-size:.72rem;color:var(--muted)" id="nfCount">Loading…</div>
+            <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Mark all read</button>
+          </div>
+          <div id="nfBody"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -401,6 +498,63 @@ nav.snav{flex:1;padding:.875rem .75rem;overflow-y:auto}
   </div>
 </div>
 
+<!-- MATERIAL MODAL -->
+<div class="mov" id="matMov">
+  <div class="modal">
+    <div class="mhead"><h2 id="matMTitle">New Material</h2><button class="mclose" onclick="closeMov('matMov')"><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="mbody">
+      <div class="frow">
+        <div class="fg"><label>Material Name *</label><input type="text" id="mtName" class="fc" placeholder="e.g. A4 Sticker Paper"/></div>
+        <div class="fg"><label>Category *</label><select id="mtCat" class="fc"><option value="">Select…</option><option>Paper</option><option>Ink</option><option>Acrylic</option><option>Packaging</option><option>Lamination</option><option>Other</option></select></div>
+      </div>
+      <div class="fg"><label>Description</label><input type="text" id="mtDesc" class="fc" placeholder="Brief description"/></div>
+      <div class="frow">
+        <div class="fg"><label>Supplier Name</label><input type="text" id="mtSup" class="fc" placeholder="Supplier Co."/></div>
+        <div class="fg"><label>Supplier Link</label><input type="url" id="mtSupLink" class="fc" placeholder="https://shopee.ph/…"/></div>
+      </div>
+      <div class="frow3">
+        <div class="fg"><label>Purchase Price (PHP)</label><input type="number" id="mtPrice" class="fc" placeholder="0.00" min="0" step="0.01"/></div>
+        <div class="fg"><label>Qty Purchased</label><input type="number" id="mtQtyBuy" class="fc" placeholder="0" min="0"/></div>
+        <div class="fg"><label>Unit *</label><select id="mtUnit" class="fc"><option value="">Select…</option><option>pcs</option><option>sheets</option><option>packs</option><option>kg</option><option>meters</option><option>liters</option><option>rolls</option></select></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Current Stock</label><input type="number" id="mtStock" class="fc" placeholder="0" min="0"/></div>
+        <div class="fg"><label>Low Stock Threshold</label><input type="number" id="mtThresh" class="fc" value="15" min="0"/></div>
+      </div>
+      <div class="eMsg" id="mtErr"></div>
+    </div>
+    <div class="mfoot"><button class="btn btn-ghost" onclick="closeMov('matMov')">Cancel</button><button class="btn btn-rose" id="mtSaveBtn" onclick="saveMaterial()">Save Material</button></div>
+  </div>
+</div>
+
+<!-- INVOICE GENERATE MODAL -->
+<div class="mov" id="invMov">
+  <div class="modal">
+    <div class="mhead"><h2>Generate Invoice</h2><button class="mclose" onclick="closeMov('invMov')"><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+    <div class="mbody">
+      <div class="inv-type-wrap">
+        <button class="inv-type-btn active" id="invTypeFull" onclick="setInvType('full')">&#x2714; Full Payment (100%)</button>
+        <button class="inv-type-btn" id="invTypeDown" onclick="setInvType('down')">Down Payment (50%)</button>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Customer Name <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input type="text" id="invCustName" class="fc" placeholder="e.g. Maria Santos"/></div>
+        <div class="fg"><label>Contact Number <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input type="text" id="invContact" class="fc" placeholder="09XX-XXX-XXXX"/></div>
+      </div>
+      <div class="fg"><label>Discount Amount (PHP)</label><input type="number" id="invDiscount" class="fc" value="0" min="0" step="0.01" oninput="updateInvCalc()"/></div>
+      <div class="inv-amt-box" id="invCalcBox"><div style="color:var(--muted);font-size:.875rem">Loading order data…</div></div>
+      <div class="eMsg" id="invErr"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="closeMov('invMov')">Cancel</button>
+      <button class="btn btn-rose" id="invDlBtn" onclick="genInvoice()">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Download PDF
+      </button>
+    </div>
+  </div>
+</div>
+<div id="invBox" style="position:absolute;left:-9999px;top:-9999px;width:794px;background:#fff;"></div>
+
 <div class="toast-w" id="toasts"></div>
 
 <script>
@@ -426,6 +580,8 @@ const S = {
   lk:{ stat:{}, pay:{}, plat:{}, items:{} },
   orders:[], fOrders:[], oPage:1,
   items:[], fItems:[], iPage:1,
+  materials:[], fMaterials:[], mPage:1,
+  notifications:[], curMatId:null,
   users:[],
   lines:[], curOrdId:null, curItmId:null,
   revChart:null, stChart:null,
@@ -454,6 +610,7 @@ function openMov(id){$(id).classList.add('open');}
 function closeMov(id){$(id).classList.remove('open');}
 function pgChange(t,d){
   if(t==='o'){const tot=Math.ceil(S.fOrders.length/PG);S.oPage=Math.max(1,Math.min(S.oPage+d,tot));renderOT();}
+  else if(t==='m'){const tot=Math.ceil(S.fMaterials.length/PG);S.mPage=Math.max(1,Math.min(S.mPage+d,tot));renderMT();}
   else{const tot=Math.ceil(S.fItems.length/PG);S.iPage=Math.max(1,Math.min(S.iPage+d,tot));renderIT();}
 }
 function sbadge(sid){
@@ -503,7 +660,7 @@ function showApp(ud){
   $('uRole').textContent=ud.role;
   $('uAvt').textContent=(ud.displayName||'?')[0].toUpperCase();
   document.querySelectorAll('.admin-gated').forEach(el=>el.style.display=S.role==='admin'?'':'none');
-  loadLookups().then(()=>go('dashboard'));
+  loadLookups().then(()=>{go('dashboard');loadNotifListener();});
 }
 async function doLogin(){
   const email=gv('lEmail'),pw=gv('lPw');
@@ -532,10 +689,10 @@ function switchTab(t){
 }
 
 // ════ ROUTER ══════════════════════════════════
-const TITLES={dashboard:'Dashboard',newOrder:'New Order',orders:'Orders',items:'Items',users:'Users'};
+const TITLES={dashboard:'Dashboard',newOrder:'New Order',orders:'Orders',items:'Items',materials:'Materials',notifications:'Notifications',users:'Users'};
 function go(pg){
   S.page=pg;
-  document.querySelectorAll('.nitem').forEach(el=>el.classList.toggle('active',el.dataset.page===pg));
+  document.querySelectorAll('.nitem[data-page]').forEach(el=>el.classList.toggle('active',el.dataset.page===pg));
   document.querySelectorAll('.pg').forEach(el=>el.classList.remove('active'));
   const p=$('pg-'+pg);if(p)p.classList.add('active');
   $('pgTitle').textContent=TITLES[pg]||pg;
@@ -544,6 +701,8 @@ function go(pg){
   if(pg==='newOrder')initNewOrder();
   if(pg==='orders')initOrders();
   if(pg==='items')initItems();
+  if(pg==='materials')initMaterials();
+  if(pg==='notifications')initNotifications();
   if(pg==='users')initUsers();
 }
 
@@ -630,7 +789,14 @@ async function renderTopItems(){
 }
 
 // ════ NEW ORDER ═══════════════════════════════
-function initNewOrder(){if(S.lines.length===0)addLine();}
+function initNewOrder(){
+  if(S.lines.length===0)addLine();
+  const el=$('no-date');
+  if(el){
+    if(el._flatpickr)el._flatpickr.destroy();
+    flatpickr(el,{defaultDate:'today',dateFormat:'Y-m-d',allowInput:false,disableMobile:false});
+  }
+}
 function addLine(){
   S.lines.push({itemId:'',itemLabel:'',baseCost:0,finalCost:0,quantity:1,notes:'',prefix:'ORD'});
   renderLines();
@@ -642,13 +808,21 @@ function removeLine(i){
 function renderLines(){
   const c=$('linesWrap');
   if(!S.lines.length){c.innerHTML='<p class="empty" style="padding:1rem">Click "+ Add Item" to begin.</p>';calcTots();return;}
-  const opts=Object.entries(S.lk.items).sort(([,a],[,b])=>(a.itemLabel||'').localeCompare(b.itemLabel||'')).map(([id,d])=>`<option value="${id}" data-base="${d.basePrice||0}" data-pfx="${d.prefix||'ORD'}">${d.itemLabel}</option>`).join('');
+  const opts=Object.entries(S.lk.items).sort(([,a],[,b])=>(a.itemLabel||'').localeCompare(b.itemLabel||'')).map(([id,d])=>{
+    const stock=d.stockQty||0;
+    const suffix=stock<=0?' (Out of Stock)':stock<=5?` (Low Stock: ${stock})`:'';
+    return `<option value="${id}" data-base="${d.basePrice||0}" data-pfx="${d.prefix||'ORD'}" data-stock="${stock}" ${stock<=0?'disabled':''}>${d.itemLabel}${suffix}</option>`;
+  }).join('');
   c.innerHTML=S.lines.map((l,i)=>`
     <div class="olcard">
       <button class="olrm" onclick="removeLine(${i})"><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem">Item ${i+1}</div>
       <div class="frow">
-        <div class="fg"><label>Item *</label><select class="fc" id="li-${i}" onchange="onItmChg(${i},this)"><option value="">Select…</option>${opts}</select></div>
+        <div class="fg">
+          <label>Item *</label>
+          <select class="fc" id="li-${i}" onchange="onItmChg(${i},this)"><option value="">Select…</option>${opts}</select>
+          <div id="ls-${i}" style="margin-top:.3rem"></div>
+        </div>
         <div class="fg"><label>Qty *</label><input type="number" class="fc" value="${l.quantity}" min="1" onchange="onLnChg(${i},'quantity',this.value)" id="lq-${i}"/></div>
       </div>
       <div class="frow3">
@@ -658,15 +832,28 @@ function renderLines(){
       </div>
       <div class="fg" style="margin-bottom:0"><label>Notes / Custom Instructions</label><input type="text" class="fc" value="${l.notes||''}" placeholder="e.g. Matte finish, die-cut…" onchange="onLnChg(${i},'notes',this.value)"/></div>
     </div>`).join('');
-  S.lines.forEach((l,i)=>{const s=$(`li-${i}`);if(s&&l.itemId)s.value=l.itemId;});
+  S.lines.forEach((l,i)=>{
+    const s=$(`li-${i}`);if(s&&l.itemId){s.value=l.itemId;updateStockTag(i,l.itemId);}
+  });
   calcTots();
+}
+function updateStockTag(i,itemId){
+  const el=$(`ls-${i}`);if(!el)return;
+  const itm=S.lk.items[itemId];if(!itm){el.innerHTML='';return;}
+  const stock=itm.stockQty||0;
+  const cls=stock<=0?'stock-out':stock<=5?'stock-low':'stock-ok';
+  const lbl=stock<=0?'Out of Stock':stock<=5?`Low Stock: ${stock} left`:`In Stock: ${stock}`;
+  el.innerHTML=`<span class="stock-tag ${cls}">${lbl}</span> <span style="font-size:.68rem;color:var(--muted)">· Base: ${fc(itm.basePrice||0)}</span>`;
 }
 function onItmChg(i,sel){
   const op=sel.options[sel.selectedIndex];
   const base=parseFloat(op.dataset.base)||0;
-  S.lines[i]={...S.lines[i],itemId:sel.value,itemLabel:op.text,baseCost:base,finalCost:base,prefix:op.dataset.pfx||'ORD'};
+  const stock=parseInt(op.dataset.stock)||0;
+  S.lines[i]={...S.lines[i],itemId:sel.value,itemLabel:op.text.replace(/ \(.*?\)$/,''),baseCost:base,finalCost:base,prefix:op.dataset.pfx||'ORD'};
   const b=$(`lb-${i}`),f=$(`lf-${i}`);
   if(b)b.value=base;if(f)f.value=base;
+  updateStockTag(i,sel.value);
+  if(stock<=0)toast(`"${S.lines[i].itemLabel}" is out of stock.`,'warning');
   calcTots();
 }
 function onLnChg(i,field,val){
@@ -689,15 +876,25 @@ async function submitOrder(){
   if(!plat)return toast('Select a platform.','error');
   if(S.lines.some(l=>!l.itemId))return toast('All lines must have an item.','error');
   if(S.lines.some(l=>l.finalCost<=0))return toast('Final cost must be > 0.','error');
+  // Stock validation
+  for(const l of S.lines){
+    const itm=S.lk.items[l.itemId];
+    if(!itm)continue;
+    const avail=itm.stockQty||0;
+    if(avail<=0)return toast(`Unable to create order. "${l.itemLabel}" is out of stock.`,'error');
+    if(avail<(l.quantity||1))return toast(`Unable to create order. "${l.itemLabel}" only has ${avail} units remaining.`,'error');
+  }
   const btn=$('submitBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Creating…';
   try{
     const pfxs=[...new Set(S.lines.map(l=>l.prefix||'ORD'))];
     const pfx=pfxs.length>1?'MIX':pfxs[0];
     const lbl=await genLabel(pfx);
     const tot=S.lines.reduce((s,l)=>s+(l.finalCost*(l.quantity||1)),0);
+    const dateStr=gv('no-date');
+    const orderCreatedAt=dateStr?firebase.firestore.Timestamp.fromDate(new Date(dateStr+'T00:00:00')):TS();
     const batch=db.batch();
     const oRef=db.collection('Orders').doc();
-    batch.set(oRef,{orderLabel:lbl,email,orderDescription:gv('no-desc'),orderReference:gv('no-ref'),statusId:stat,paymentMethodId:pay,platformId:plat,notes:gv('no-notes'),totalCost:tot,currency:'PHP',orderCreatedAt:TS(),updatedAt:TS(),userId:null});
+    batch.set(oRef,{orderLabel:lbl,email,orderDescription:gv('no-desc'),orderReference:gv('no-ref'),statusId:stat,paymentMethodId:pay,platformId:plat,notes:gv('no-notes'),totalCost:tot,currency:'PHP',orderCreatedAt,updatedAt:TS(),userId:null});
     for(const l of S.lines){
       const lRef=db.collection('orderline').doc();
       batch.set(lRef,{orderId:oRef.id,itemId:l.itemId,itemLabel:l.itemLabel,baseCost:l.baseCost,finalCost:l.finalCost,quantity:l.quantity||1,notes:l.notes||''});
@@ -714,6 +911,7 @@ async function submitOrder(){
 function clearOrder(){
   ['no-email','no-desc','no-ref','no-notes'].forEach(id=>{const e=$(id);if(e)e.value='';});
   ['no-stat','no-pay','no-plat'].forEach(id=>{const e=$(id);if(e)e.selectedIndex=0;});
+  const el=$('no-date');if(el&&el._flatpickr)el._flatpickr.setDate(new Date(),true);
   S.lines=[];addLine();
 }
 
@@ -761,56 +959,170 @@ function renderOT(){
 }
 async function openOrd(oid){
   S.curOrdId=oid;
-  const[od,ls,hs]=await Promise.all([
-    db.collection('Orders').doc(oid).get(),
-    db.collection('orderline').where('orderId','==',oid).get(),
-    db.collection('orderStatusHistory').where('orderId','==',oid).orderBy('changedAt','asc').get(),
-  ]);
-  if(!od.exists)return toast('Order not found.','error');
-  const o={id:od.id,...od.data()};
-  const lines=ls.docs.map(d=>({id:d.id,...d.data()}));
-  const hist=hs.docs.map(d=>({id:d.id,...d.data()}));
-  const statOpts=Object.entries(S.lk.stat).sort(([a],[b])=>Number(a)-Number(b)).map(([id,d])=>`<option value="${id}" ${o.statusId===id?'selected':''}>${d.statusLabel}</option>`).join('');
-  const payOpts=Object.entries(S.lk.pay).sort(([a],[b])=>Number(a)-Number(b)).map(([id,d])=>`<option value="${id}" ${o.paymentMethodId===id?'selected':''}>${d.paymentLabel}</option>`).join('');
-  $('ordMTitle').textContent=o.orderLabel||oid;
-  $('ordMBody').innerHTML=`
-    <div class="dgrid">
-      <div class="dsec"><h4>Order Info</h4>
-        <div class="drow"><span>Label</span><span style="font-family:monospace;color:var(--rose)">${o.orderLabel||'—'}</span></div>
-        <div class="drow"><span>Email</span><span>${o.email||'—'}</span></div>
-        <div class="drow"><span>Platform</span><span>${S.lk.plat[o.platformId]?.platformLabel||'—'}</span></div>
-        <div class="drow"><span>Reference</span><span>${o.orderReference||'—'}</span></div>
-        <div class="drow"><span>Created</span><span>${fdt(o.orderCreatedAt)}</span></div>
-        <div class="drow"><span>Description</span><span>${o.orderDescription||'—'}</span></div>
-      </div>
-      <div class="dsec"><h4>Edit Status &amp; Payment</h4>
-        <div class="fg"><label>Status</label><select class="fc" id="eS">${statOpts}</select></div>
-        <div class="fg"><label>Payment Method</label><select class="fc" id="eP">${payOpts}</select></div>
-        <div class="fg" style="margin-bottom:0"><label>Notes</label><input type="text" class="fc" id="eN" value="${o.notes||''}"/></div>
-      </div>
-    </div>
-    <hr class="sdiv"/>
-    <h4 style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.65rem">Order Lines</h4>
-    ${lines.length?`<table class="dt" style="margin-bottom:.875rem"><thead><tr><th>Item</th><th>Base</th><th>Final</th><th>Qty</th><th>Line Total</th><th>Notes</th></tr></thead><tbody>
-    ${lines.map(l=>`<tr><td>${l.itemLabel||l.itemId}</td><td>${fc(l.baseCost)}</td><td style="font-weight:600">${fc(l.finalCost)}</td><td style="text-align:center">${l.quantity||1}</td><td style="font-weight:700;color:var(--rose)">${fc(l.finalCost*(l.quantity||1))}</td><td style="color:var(--muted)">${l.notes||'—'}</td></tr>`).join('')}</tbody></table>
-    <div style="text-align:right;font-weight:700;color:var(--rose);font-size:.975rem">Total: ${fc(o.totalCost)}</div>`:'<p style="color:var(--muted);font-size:.8rem">No lines found.</p>'}
-    <hr class="sdiv"/>
-    <h4 style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.65rem">Status History</h4>
-    ${hist.length?hist.map(h=>`<div class="hitem"><div class="hdot"></div><div><div class="hstatus">${S.lk.stat[h.statusId]?.statusLabel||'Unknown'}</div><div class="hmeta">${fdt(h.changedAt)} · ${h.changedBy}${h.note?' · '+h.note:''}</div></div></div>`).join(''):'<p style="color:var(--muted);font-size:.8rem">No history.</p>'}
-  `;
-  $('ordMFoot').innerHTML=`
-    <button class="btn btn-ghost" onclick="closeMov('ordMov')">Close</button>
-    ${S.role==='admin'?`<button class="btn btn-danger btn-sm" onclick="delOrd('${oid}')">Delete</button>`:''}
-    <button class="btn btn-rose" onclick="saveOrd('${oid}')">Save Changes</button>
-  `;
+  // Open modal immediately with loading state
+  $('ordMTitle').textContent='Loading…';
+  $('ordMBody').innerHTML=`<div style="padding:3rem;text-align:center;color:var(--muted)"><div style="width:28px;height:28px;border:2px solid rgba(194,82,122,.25);border-top-color:var(--rose);border-radius:50%;animation:spin .55s linear infinite;margin:0 auto 1rem"></div>Loading order details…</div>`;
+  $('ordMFoot').innerHTML='';
   openMov('ordMov');
+  try{
+    // Fetch order + order lines in parallel
+    const[od,ls]=await Promise.all([
+      db.collection('Orders').doc(oid).get(),
+      db.collection('orderline').where('orderId','==',oid).get(),
+    ]);
+    if(!od.exists){closeMov('ordMov');return toast('Order not found.','error');}
+    const o={id:od.id,...od.data()};
+    const lines=ls.docs.map(d=>({id:d.id,...d.data()}));
+
+    // Fetch status history — fallback gracefully if composite index missing
+    let hist=[];
+    try{
+      const hsSnap=await db.collection('orderStatusHistory').where('orderId','==',oid).orderBy('changedAt','asc').get();
+      hist=hsSnap.docs.map(d=>({id:d.id,...d.data()}));
+    }catch{
+      try{
+        const hsSnap=await db.collection('orderStatusHistory').where('orderId','==',oid).get();
+        hist=hsSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+          const ta=a.changedAt?.toDate?a.changedAt.toDate():new Date(0);
+          const tb=b.changedAt?.toDate?b.changedAt.toDate():new Date(0);
+          return ta-tb;
+        });
+      }catch{hist=[];}
+    }
+
+    const statOpts=Object.entries(S.lk.stat).sort(([a],[b])=>Number(a)-Number(b)).map(([id,d])=>`<option value="${id}" ${o.statusId===id?'selected':''}>${d.statusLabel}</option>`).join('');
+    const payOpts=Object.entries(S.lk.pay).sort(([a],[b])=>Number(a)-Number(b)).map(([id,d])=>`<option value="${id}" ${o.paymentMethodId===id?'selected':''}>${d.paymentLabel}</option>`).join('');
+
+    $('ordMTitle').textContent=o.orderLabel||oid;
+    $('ordMBody').innerHTML=`
+      <!-- ── ORDER INFO ── -->
+      <div style="margin-bottom:1.25rem">
+        <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem">Order Information</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem">
+          <div class="dsec">
+            <h4>Identification</h4>
+            <div class="drow"><span>Order Label</span><span style="font-family:monospace;font-weight:700;color:var(--rose)">${o.orderLabel||'—'}</span></div>
+            <div class="drow"><span>Firestore ID</span><span style="font-family:monospace;font-size:.7rem;color:var(--muted)">${o.id}</span></div>
+            <div class="drow"><span>Reference</span><span>${o.orderReference||'—'}</span></div>
+            <div class="drow"><span>Description</span><span>${o.orderDescription||'—'}</span></div>
+            <div class="drow"><span>User ID</span><span style="font-size:.72rem;color:var(--muted)">${o.userId||'—'}</span></div>
+          </div>
+          <div class="dsec">
+            <h4>Customer &amp; Platform</h4>
+            <div class="drow"><span>Email</span><span>${o.email||'—'}</span></div>
+            <div class="drow"><span>Platform</span><span>${S.lk.plat[o.platformId]?.platformLabel||'—'}</span></div>
+            <div class="drow"><span>Payment</span><span>${S.lk.pay[o.paymentMethodId]?.paymentLabel||'—'}</span></div>
+            <div class="drow"><span>Status</span><span>${sbadge(o.statusId)}</span></div>
+          </div>
+          <div class="dsec">
+            <h4>Financials</h4>
+            <div class="drow"><span>Total Cost</span><span style="font-weight:800;color:var(--rose);font-size:1.05rem">${fc(o.totalCost)}</span></div>
+            <div class="drow"><span>Currency</span><span>${o.currency||'PHP'}</span></div>
+          </div>
+          <div class="dsec">
+            <h4>Timestamps</h4>
+            <div class="drow"><span>Created</span><span>${fdt(o.orderCreatedAt)}</span></div>
+            <div class="drow"><span>Last Updated</span><span>${fdt(o.updatedAt)}</span></div>
+          </div>
+        </div>
+        ${o.notes?`<div class="dsec"><h4>Internal Notes</h4><p style="font-size:.8375rem;padding:.1rem 0">${o.notes}</p></div>`:''}
+      </div>
+
+      <!-- ── EDIT CONTROLS ── -->
+      <div style="background:#FAF4F7;border-radius:12px;padding:.875rem 1rem;margin-bottom:1.1rem">
+        <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem">Update Order</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:1rem">
+          <div class="fg" style="margin-bottom:0"><label>Status</label><select class="fc" id="eS">${statOpts}</select></div>
+          <div class="fg" style="margin-bottom:0"><label>Payment Method</label><select class="fc" id="eP">${payOpts}</select></div>
+          <div class="fg" style="margin-bottom:0"><label>Notes</label><input type="text" class="fc" id="eN" value="${(o.notes||'').replace(/"/g,'&quot;')}"/></div>
+        </div>
+      </div>
+
+      <hr class="sdiv"/>
+
+      <!-- ── ORDER LINES ── -->
+      <div style="margin-bottom:1.1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem">
+          <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Order Lines <span style="background:var(--blush);color:var(--rose);border-radius:99px;padding:.1rem .5rem;font-size:.65rem;margin-left:.35rem">${lines.length}</span></div>
+          <div style="font-weight:800;color:var(--rose)">Total: ${fc(o.totalCost)}</div>
+        </div>
+        ${lines.length?`
+          <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--border)">
+            <table class="dt" style="min-width:700px;margin:0">
+              <thead>
+                <tr>
+                  <th style="width:30px">#</th>
+                  <th>Item</th>
+                  <th>Item ID</th>
+                  <th>Base Cost</th>
+                  <th>Final Cost</th>
+                  <th style="text-align:center">Qty</th>
+                  <th>Line Total</th>
+                  <th>Notes</th>
+                  <th>Line Doc ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${lines.map((l,i)=>`
+                  <tr style="cursor:default">
+                    <td style="color:var(--muted);font-size:.72rem;font-weight:600">${i+1}</td>
+                    <td><strong>${l.itemLabel||'—'}</strong></td>
+                    <td style="font-family:monospace;font-size:.7rem;color:var(--muted)">${l.itemId||'—'}</td>
+                    <td>${fc(l.baseCost)}</td>
+                    <td style="font-weight:700;color:var(--taupe)">${fc(l.finalCost)}</td>
+                    <td style="text-align:center">${l.quantity||1}</td>
+                    <td style="font-weight:800;color:var(--rose)">${fc((l.finalCost||0)*(l.quantity||1))}</td>
+                    <td style="color:var(--muted);max-width:160px;word-break:break-word">${l.notes||'—'}</td>
+                    <td style="font-family:monospace;font-size:.65rem;color:var(--muted)">${l.id}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`
+        :'<p style="color:var(--muted);font-size:.8rem;padding:.25rem 0">No order lines found for this order.</p>'}
+      </div>
+
+      <hr class="sdiv"/>
+
+      <!-- ── STATUS HISTORY ── -->
+      <div>
+        <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem">Status History</div>
+        ${hist.length?hist.map(h=>`
+          <div class="hitem">
+            <div class="hdot"></div>
+            <div>
+              <div class="hstatus">${S.lk.stat[h.statusId]?.statusLabel||h.statusId||'Unknown'}</div>
+              <div class="hmeta">${fdt(h.changedAt)} · ${h.changedBy||'system'}${h.note?' · '+h.note:''}</div>
+            </div>
+          </div>`).join('')
+        :'<p style="color:var(--muted);font-size:.8rem">No status history recorded.</p>'}
+      </div>
+    `;
+    $('ordMFoot').innerHTML=`
+      <button class="btn btn-ghost" onclick="closeMov('ordMov')">Close</button>
+      ${S.role==='admin'?`<button class="btn btn-danger btn-sm" onclick="delOrd('${oid}')">Delete Order</button>`:''}
+      <button class="btn btn-invoice" onclick="openInvModal('${oid}')">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Generate Invoice
+      </button>
+      <button class="btn btn-rose" onclick="saveOrd('${oid}')">Save Changes</button>
+    `;
+  }catch(e){
+    $('ordMBody').innerHTML=`<div style="padding:2.5rem;text-align:center"><p style="font-weight:700;color:var(--red);margin-bottom:.5rem">Failed to load order</p><p style="font-size:.78rem;color:var(--muted)">${e.message}</p></div>`;
+    $('ordMFoot').innerHTML=`<button class="btn btn-ghost" onclick="closeMov('ordMov')">Close</button>`;
+    console.error('openOrd error:',e);
+  }
 }
 async function saveOrd(oid){
   const stat=gval('eS'),pay=gval('eP'),notes=gv('eN');
   const orig=S.orders.find(o=>o.id===oid);
+  const deliveredId=Object.entries(S.lk.stat).find(([,d])=>d.statusLabel==='Delivered')?.[0];
   await db.collection('Orders').doc(oid).update({statusId:stat,paymentMethodId:pay,notes,updatedAt:TS()});
   if(orig&&stat!==orig.statusId){
     await db.collection('orderStatusHistory').add({orderId:oid,statusId:stat,changedAt:TS(),changedBy:S.user?.uid||'admin',note:'Updated via dashboard'});
+    // Auto-deduct inventory when marked Delivered (once only)
+    if(stat===deliveredId&&!orig.inventoryProcessed){
+      try{await deductInventory(oid);}catch(e){console.error('Inventory deduction error:',e);}
+    }
   }
   await audit('UPDATE_ORDER','Order',oid,{stat,pay});
   toast('Order updated.','success');
@@ -961,6 +1273,372 @@ async function togUsr(uid,active){
   await db.collection('dashboardUsers').doc(uid).update({isActive:active});
   const u=S.users.find(u=>(u.uid||u.id)===uid);if(u)u.isActive=active;
   toast(`User ${active?'activated':'deactivated'}.`,'success');
+}
+
+// ════ INVOICE GENERATOR ══════════════════════
+async function getOrdData(oid){
+  const o=S.orders.find(o=>o.id===oid);
+  const ls=await db.collection('orderline').where('orderId','==',oid).get();
+  const lines=ls.docs.map(d=>({id:d.id,...d.data()}));
+  return{o,lines};
+}
+
+const INV={oid:null,type:'full',o:null,lines:[]};
+
+async function openInvModal(oid){
+  INV.oid=oid;INV.type='full';INV.o=null;INV.lines=[];
+  if($('invCustName'))$('invCustName').value='';
+  if($('invContact'))$('invContact').value='';
+  if($('invDiscount'))$('invDiscount').value='0';
+  hideE('invErr');
+  setInvType('full');
+  $('invCalcBox').innerHTML='<div style="color:var(--muted);font-size:.875rem">Loading…</div>';
+  openMov('invMov');
+  try{
+    const{o,lines}=await getOrdData(oid);
+    INV.o=o;INV.lines=lines;
+    updateInvCalc();
+  }catch(e){
+    $('invCalcBox').innerHTML=`<div style="color:var(--red);font-size:.875rem">${e.message}</div>`;
+  }
+}
+
+function setInvType(type){
+  INV.type=type;
+  $('invTypeFull').classList.toggle('active',type==='full');
+  $('invTypeDown').classList.toggle('active',type==='down');
+  $('invTypeFull').textContent=type==='full'?'✔ Full Payment (100%)':'Full Payment (100%)';
+  $('invTypeDown').textContent=type==='down'?'✔ Down Payment (50%)':'Down Payment (50%)';
+  updateInvCalc();
+}
+
+function updateInvCalc(){
+  if(!INV.lines||!INV.lines.length)return;
+  const sub=INV.lines.reduce((s,l)=>s+(l.finalCost||0)*(l.quantity||1),0);
+  const disc=parseFloat($('invDiscount')?.value)||0;
+  const total=Math.max(0,sub-disc);
+  const pay=INV.type==='down'?total*0.5:total;
+  const fmt=n=>`&#8369;${Number(n).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  $('invCalcBox').innerHTML=`
+    <div class="inv-amt-row"><span>Subtotal</span><span>${fmt(sub)}</span></div>
+    ${disc>0?`<div class="inv-amt-row" style="color:#065F46"><span>Discount</span><span>&minus; ${fmt(disc)}</span></div>`:''}
+    <div class="inv-amt-row total"><span>Total Due</span><span>${fmt(total)}</span></div>
+    ${INV.type==='down'?`<div style="display:flex;justify-content:space-between;align-items:center;background:#FFF8E7;border-radius:8px;padding:.55rem .75rem;margin-top:.5rem;color:#92400E;font-weight:700;font-size:.875rem"><span>Down Payment (50%)</span><span>${fmt(pay)}</span></div>`:''}
+  `;
+}
+
+function buildInvoiceHTML(o,lines,type,disc,custName,contact,invoiceNo){
+  const sub=lines.reduce((s,l)=>s+(l.finalCost||0)*(l.quantity||1),0);
+  const discAmt=parseFloat(disc)||0;
+  const totalDue=Math.max(0,sub-discAmt);
+  const payAmt=type==='down'?totalDue*0.5:totalDue;
+  const isDown=type==='down';
+  const today=new Date();
+  const todayFmt=today.toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+  const ordDateFmt=o.orderCreatedAt?.toDate?o.orderCreatedAt.toDate().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'}):todayFmt;
+  const fmt=n=>`&#8369;${Number(n).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const itemRows=lines.map((l,i)=>{
+    const desc=S.lk.items[l.itemId]?.itemDescription||l.notes||'';
+    const qty=l.quantity||1;
+    const price=l.finalCost||0;
+    const tot=price*qty;
+    return`<tr style="background:${i%2===1?'#FFF8F5':'#ffffff'};border-bottom:1px solid #EDD9E7">
+      <td style="padding:11px 14px">
+        <div style="font-weight:600;color:#4A3840;font-size:13px">${l.itemLabel||'—'}</div>
+        ${desc?`<div style="font-size:11px;color:#9B7285;margin-top:3px">${desc}</div>`:''}
+      </td>
+      <td style="padding:11px 14px;text-align:center;font-size:13px;color:#4A3840">${qty}</td>
+      <td style="padding:11px 14px;text-align:right;font-size:13px;color:#4A3840">${fmt(price)}</td>
+      <td style="padding:11px 14px;text-align:right;font-weight:700;font-size:13px;color:#C1527A">${fmt(tot)}</td>
+    </tr>`;
+  }).join('');
+  return`<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}</style>
+<div style="width:794px;padding:48px 52px;background:#fff">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:26px;border-bottom:3px solid #C1527A;margin-bottom:24px">
+  <div>
+    <div style="font-size:26px;font-weight:900;color:#C1527A;letter-spacing:-0.03em">LIKHA-ERA</div>
+    <div style="font-size:10px;color:#9B7285;margin-top:4px;text-transform:uppercase;letter-spacing:.08em">Custom Sticker Shop</div>
+  </div>
+  <div style="text-align:right">
+    <div style="font-size:44px;font-weight:900;color:#F2A7C3;text-transform:uppercase;letter-spacing:.05em;line-height:1">Invoice</div>
+    <table style="margin-top:10px;font-size:10px;margin-left:auto;border-collapse:collapse">
+      <tr><td style="color:#9B7285;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 14px 2px 0;text-align:right">Invoice No.</td><td style="color:#4A3840;font-weight:700;text-align:left">${invoiceNo}</td></tr>
+      <tr><td style="color:#9B7285;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 14px 2px 0;text-align:right">Order No.</td><td style="color:#4A3840;font-weight:700;text-align:left">${o.orderLabel}</td></tr>
+      <tr><td style="color:#9B7285;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 14px 2px 0;text-align:right">Invoice Date</td><td style="color:#4A3840;text-align:left">${todayFmt}</td></tr>
+      <tr><td style="color:#9B7285;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 14px 2px 0;text-align:right">Order Date</td><td style="color:#4A3840;text-align:left">${ordDateFmt}</td></tr>
+    </table>
+  </div>
+</div>
+<div style="display:inline-block;padding:5px 16px;border-radius:99px;font-size:11px;font-weight:700;background:${isDown?'#FFF8E7':'#ECFDF5'};color:${isDown?'#92400E':'#065F46'};margin-bottom:20px">
+  ${isDown?'Down Payment Invoice — 50% of Total Due':'Full Payment Invoice — 100% of Total Due'}
+</div>
+<div style="background:#FFF8F5;border-radius:10px;padding:18px 22px;margin-bottom:22px;border-left:4px solid #C1527A">
+  <div style="font-size:9px;font-weight:700;color:#9B7285;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Bill To</div>
+  ${custName?`<div style="font-size:16px;font-weight:800;color:#4A3840;margin-bottom:4px">${custName}</div>`:''}
+  <div style="font-size:12px;color:#9B7285;margin-top:2px">&#9993; ${o.email||'—'}</div>
+  ${contact?`<div style="font-size:12px;color:#9B7285;margin-top:3px">&#128241; ${contact}</div>`:''}
+  ${o.orderReference?`<div style="font-size:12px;color:#4A3840;font-weight:600;margin-top:7px">Ref: ${o.orderReference}</div>`:''}
+</div>
+<table style="width:100%;border-collapse:collapse">
+  <thead>
+    <tr style="background:#C1527A">
+      <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em">Item Description</th>
+      <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;width:70px">Qty</th>
+      <th style="padding:10px 14px;text-align:right;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;width:110px">Unit Price</th>
+      <th style="padding:10px 14px;text-align:right;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em;width:120px">Total</th>
+    </tr>
+  </thead>
+  <tbody>${itemRows}</tbody>
+</table>
+<div style="display:flex;justify-content:flex-end;margin-top:22px">
+  <div style="width:268px">
+    <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#4A3840"><span>Subtotal</span><span>${fmt(sub)}</span></div>
+    ${discAmt>0?`<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#065F46"><span>Discount</span><span>&minus; ${fmt(discAmt)}</span></div>`:''}
+    <div style="border-top:1.5px solid #EDD9E7;margin:8px 0"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#C1527A;color:#fff;padding:11px 14px;border-radius:8px;font-size:15px;font-weight:800"><span>Total Due</span><span>${fmt(totalDue)}</span></div>
+    ${isDown?`<div style="background:#FFF8E7;border-radius:8px;padding:13px 14px;margin-top:8px">
+      <div style="font-size:11px;font-weight:700;color:#92400E;margin-bottom:5px">Down Payment Required (50%)</div>
+      <div style="font-size:22px;font-weight:900;color:#92400E">${fmt(payAmt)}</div>
+      <div style="font-size:10px;color:#9B7285;margin-top:5px">Remaining balance of ${fmt(totalDue-payAmt)} due upon completion.</div>
+    </div>`:''}
+  </div>
+</div>
+<div style="margin-top:28px;background:#FDE8F0;border-radius:10px;padding:18px 22px">
+  <div style="font-size:10px;font-weight:700;color:#C1527A;text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px">Payment Terms &amp; Instructions</div>
+  <div style="font-size:12px;color:#4A3840;line-height:1.85">
+    Full payment or 50% down payment is required before production.<br/>
+    Production will only begin once payment is confirmed.<br/>
+    <strong style="color:#C1527A">Payment Method:</strong> Bank Transfer (MariBank)<br/>
+    <strong style="color:#C1527A">Account Number:</strong> 12503898612
+  </div>
+</div>
+<div style="margin-top:30px;text-align:center;border-top:1px solid #EDD9E7;padding-top:22px">
+  <div style="font-size:22px;font-weight:900;color:#C1527A;margin-bottom:5px">Thank You!</div>
+  <div style="font-size:11px;color:#9B7285">for choosing LIKHA-ERA &middot; likha-era.vercel.app</div>
+  <div style="font-size:10px;color:#9B7285;margin-top:4px">This is a computer-generated invoice and does not require a signature.</div>
+</div>
+</div>`;
+}
+
+async function genInvoice(){
+  if(!INV.o||!INV.lines)return toast('Order data not loaded yet.','error');
+  const custName=gv('invCustName');
+  const contact=gv('invContact');
+  const disc=parseFloat($('invDiscount')?.value)||0;
+  const sub=INV.lines.reduce((s,l)=>s+(l.finalCost||0)*(l.quantity||1),0);
+  const totalDue=Math.max(0,sub-disc);
+  const payAmt=INV.type==='down'?totalDue*0.5:totalDue;
+  const today=new Date();
+  const yyyymmdd=today.getFullYear()+String(today.getMonth()+1).padStart(2,'0')+String(today.getDate()).padStart(2,'0');
+  const suffix=INV.type==='down'?'DP':'FP';
+  const invoiceNo=`INV-${INV.o.orderLabel}-${suffix}`;
+  const filename=`${invoiceNo}_${yyyymmdd}.pdf`;
+  const html=buildInvoiceHTML(INV.o,INV.lines,INV.type,disc,custName,contact,invoiceNo);
+  const btn=$('invDlBtn');
+  const orig=btn.innerHTML;
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span> Generating…';
+  const opt={
+    margin:0,filename,
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true,logging:false},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  };
+  try{
+    await html2pdf().set(opt).from(html).save();
+    await db.collection('invoices').add({
+      orderId:INV.oid,orderLabel:INV.o.orderLabel,invoiceNo,type:INV.type,
+      customerName:custName||null,customerEmail:INV.o.email||null,contactNumber:contact||null,
+      subtotal:sub,discount:disc,totalDue,paymentAmount:payAmt,
+      createdAt:TS(),createdBy:S.user?.email||'system'
+    });
+    await audit('GENERATE_INVOICE','invoices',invoiceNo,{orderId:INV.oid,type:INV.type,amount:payAmt});
+    toast(`Invoice downloaded: ${invoiceNo}`,'success');
+    closeMov('invMov');
+  }catch(e){toast('Invoice error: '+e.message,'error');console.error(e);}
+  finally{btn.disabled=false;btn.innerHTML=orig;}
+}
+
+// ════ INVENTORY DEDUCTION ════════════════════
+async function deductInventory(orderId){
+  const ls=await db.collection('orderline').where('orderId','==',orderId).get();
+  if(ls.empty)return;
+  const lines=ls.docs.map(d=>({id:d.id,...d.data()}));
+  const batch=db.batch();
+  const txns=[];
+  for(const l of lines){
+    if(!l.itemId)continue;
+    const iRef=db.collection('Items').doc(l.itemId);
+    const iDoc=await iRef.get();
+    if(!iDoc.exists)continue;
+    const prev=iDoc.data().stockQty||0;
+    const qty=l.quantity||1;
+    const newStock=Math.max(0,prev-qty);
+    batch.update(iRef,{stockQty:newStock,updatedAt:TS()});
+    txns.push({itemId:l.itemId,itemName:l.itemLabel||l.itemId,orderId,quantityChanged:-qty,previousStock:prev,newStock,transactionType:'ORDER_COMPLETION',createdAt:TS()});
+    if(S.lk.items[l.itemId])S.lk.items[l.itemId].stockQty=newStock;
+    const si=S.items.find(i=>i.id===l.itemId);if(si)si.stockQty=newStock;
+  }
+  batch.update(db.collection('Orders').doc(orderId),{inventoryProcessed:true});
+  await batch.commit();
+  for(const t of txns){
+    await db.collection('inventoryTransactions').add(t);
+    await checkLowStock(t.itemId,t.newStock,t.itemName);
+  }
+  toast('Inventory updated after order completion.','success');
+}
+async function checkLowStock(itemId,stock,name,threshold=15){
+  if(stock>=threshold)return;
+  const ex=await db.collection('notifications').where('itemId','==',itemId).where('isRead','==',false).where('type','==','LOW_STOCK').limit(1).get();
+  if(!ex.empty)return;
+  await db.collection('notifications').add({type:'LOW_STOCK',title:'Low Stock Alert',message:`${name} only has ${stock} units remaining. Please restock soon.`,itemId,isRead:false,createdAt:TS()});
+}
+
+// ════ NOTIFICATIONS ══════════════════════════
+let notifUnsub=null;
+function loadNotifListener(){
+  if(notifUnsub)notifUnsub();
+  notifUnsub=db.collection('notifications').where('isRead','==',false).onSnapshot(snap=>{
+    S.notifications=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderNotifBadge();
+  },()=>{});
+}
+function renderNotifBadge(){
+  const c=S.notifications.length;
+  const b=$('notifBadge');
+  if(b){b.textContent=c>9?'9+':c;b.style.display=c>0?'flex':'none';}
+}
+async function initNotifications(){
+  const snap=await db.collection('notifications').orderBy('createdAt','desc').limit(100).get().catch(async()=>{
+    const s2=await db.collection('notifications').get();return s2;
+  });
+  const all=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+    const ta=a.createdAt?.toDate?a.createdAt.toDate():new Date(0);
+    const tb=b.createdAt?.toDate?b.createdAt.toDate():new Date(0);
+    return tb-ta;
+  });
+  const unread=all.filter(n=>!n.isRead);
+  const read=all.filter(n=>n.isRead);
+  $('nfCount').textContent=`${unread.length} unread · ${all.length} total`;
+  $('nfBody').innerHTML=(all.length?[
+    unread.length?`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.6rem">Unread (${unread.length})</div>`:'',
+    ...unread.map(n=>notifCard(n)),
+    read.length?`<div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.9rem 0 .6rem">Read</div>`:'',
+    ...read.map(n=>notifCard(n)),
+  ].join(''):'<p class="empty">No notifications yet.</p>');
+}
+function notifCard(n){
+  const cls=n.isRead?'':'unread';
+  const ico={LOW_STOCK:'⚠'}[n.type]||'ℹ';
+  return `<div class="notif-card ${cls}">
+    <div class="nc-title">${ico} ${n.title||'Notification'}</div>
+    <div class="nc-msg">${n.message||''}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="nc-meta">${fdt(n.createdAt)}</div>
+      ${!n.isRead?`<button class="btn btn-ghost btn-sm" style="font-size:.72rem;padding:.2rem .6rem" onclick="markNotifRead('${n.id}')">Mark read</button>`:''}
+    </div>
+  </div>`;
+}
+async function markNotifRead(id){
+  await db.collection('notifications').doc(id).update({isRead:true});
+  toast('Notification marked as read.','success');
+  initNotifications();
+}
+async function markAllRead(){
+  const snap=await db.collection('notifications').where('isRead','==',false).get();
+  if(snap.empty)return toast('No unread notifications.','info');
+  const b=db.batch();snap.forEach(d=>b.update(d.ref,{isRead:true}));
+  await b.commit();
+  toast('All notifications marked as read.','success');
+  initNotifications();
+}
+
+// ════ MATERIALS ══════════════════════════════
+async function initMaterials(){
+  const snap=await db.collection('materials').orderBy('name').get().catch(async()=>db.collection('materials').get());
+  S.materials=snap.docs.map(d=>({id:d.id,...d.data()}));
+  filterMaterials();
+}
+function filterMaterials(){
+  const q=gv('mSearch').toLowerCase(),cat=gval('mCat');
+  S.fMaterials=S.materials.filter(m=>{
+    if(q&&!(m.name||'').toLowerCase().includes(q)&&!(m.supplierName||'').toLowerCase().includes(q))return false;
+    if(cat&&m.category!==cat)return false;
+    return true;
+  });
+  S.mPage=1;renderMT();
+}
+function renderMT(){
+  const tot=S.fMaterials.length,pgs=Math.max(1,Math.ceil(tot/PG));
+  S.mPage=Math.min(S.mPage,pgs);
+  const sl=S.fMaterials.slice((S.mPage-1)*PG,S.mPage*PG);
+  $('mCount').textContent=`${tot} material${tot!==1?'s':''}`;
+  $('mPgLbl').textContent=`${S.mPage}/${pgs}`;
+  $('mPrev').disabled=S.mPage<=1;$('mNext').disabled=S.mPage>=pgs;
+  const isAdmin=S.role==='admin';
+  const LOW=m=>parseInt(m.currentStock||0)<=parseInt(m.lowStockThreshold||15);
+  $('mBody').innerHTML=sl.length?sl.map(m=>`
+    <tr style="cursor:default">
+      <td><strong>${m.name||'—'}</strong><br/><span style="color:var(--muted);font-size:.72rem">${(m.description||'').slice(0,50)}</span></td>
+      <td><span class="badge b-admin">${m.category||'—'}</span></td>
+      <td style="text-align:center;font-weight:700;${LOW(m)?'color:var(--amber)':''}">${m.currentStock||0}</td>
+      <td style="color:var(--muted)">${m.unit||'—'}</td>
+      <td>${m.purchasePrice?fc(m.purchasePrice):'—'}</td>
+      <td style="font-size:.78rem">${m.supplierName||'—'}${m.supplierLink?`<a href="${m.supplierLink}" target="_blank" style="color:var(--rose);margin-left:.35rem;font-size:.7rem">↗</a>`:''}</td>
+      <td>${LOW(m)?`<span class="badge b-pending">⚠ Low</span>`:''}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openMatModal('${m.id}')">Edit</button>
+        ${isAdmin?`<button class="btn btn-danger btn-sm" style="margin-left:.3rem" onclick="delMat('${m.id}')">Delete</button>`:''}
+      </td>
+    </tr>`).join(''):'<tr><td colspan="8" class="empty" style="padding:2.5rem">No materials found. Add your first material.</td></tr>';
+}
+function openMatModal(id=null){
+  S.curMatId=id;
+  $('matMTitle').textContent=id?'Edit Material':'New Material';
+  ['mtName','mtDesc','mtSup','mtSupLink','mtPrice','mtQtyBuy','mtStock'].forEach(k=>{const e=$(k);if(e)e.value='';});
+  $('mtCat').value='';$('mtUnit').value='';$('mtThresh').value='15';
+  hideE('mtErr');
+  if(id){
+    const m=S.materials.find(m=>m.id===id);if(!m)return;
+    $('mtName').value=m.name||'';$('mtDesc').value=m.description||'';
+    $('mtCat').value=m.category||'';$('mtSup').value=m.supplierName||'';
+    $('mtSupLink').value=m.supplierLink||'';$('mtPrice').value=m.purchasePrice||0;
+    $('mtQtyBuy').value=m.quantityPurchased||0;$('mtUnit').value=m.unit||'';
+    $('mtStock').value=m.currentStock||0;$('mtThresh').value=m.lowStockThreshold||15;
+  }
+  openMov('matMov');
+}
+async function saveMaterial(){
+  const name=gv('mtName'),cat=gval('mtCat'),unit=gval('mtUnit');
+  if(!name)return showE('mtErr','Material name is required.');
+  if(!cat)return showE('mtErr','Select a category.');
+  if(!unit)return showE('mtErr','Select a unit.');
+  const btn=$('mtSaveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  const data={name,category:cat,description:gv('mtDesc'),supplierName:gv('mtSup'),supplierLink:gv('mtSupLink'),purchasePrice:parseFloat(gval('mtPrice'))||0,quantityPurchased:parseInt(gval('mtQtyBuy'))||0,currentStock:parseInt(gval('mtStock'))||0,unit,lowStockThreshold:parseInt(gval('mtThresh'))||15,updatedAt:TS()};
+  try{
+    if(S.curMatId){
+      await db.collection('materials').doc(S.curMatId).update(data);
+      await audit('UPDATE_MATERIAL','Material',S.curMatId,{name});
+      const idx=S.materials.findIndex(m=>m.id===S.curMatId);
+      if(idx>-1)S.materials[idx]={...S.materials[idx],...data};
+      toast('Material updated.','success');
+    }else{
+      data.createdAt=TS();
+      const ref=await db.collection('materials').add(data);
+      await audit('CREATE_MATERIAL','Material',ref.id,{name});
+      S.materials.push({id:ref.id,...data});
+      toast('Material added.','success');
+    }
+    filterMaterials();closeMov('matMov');
+  }catch(e){showE('mtErr',e.message);}
+  finally{btn.disabled=false;btn.textContent='Save Material';}
+}
+async function delMat(id){
+  if(S.role!=='admin')return toast('Admin access required.','error');
+  if(!confirm('Delete this material? This cannot be undone.'))return;
+  await db.collection('materials').doc(id).delete();
+  await audit('DELETE_MATERIAL','Material',id,{});
+  S.materials=S.materials.filter(m=>m.id!==id);
+  filterMaterials();toast('Material deleted.','success');
 }
 </script>
 </body>
