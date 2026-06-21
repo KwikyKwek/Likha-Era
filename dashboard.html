@@ -1475,31 +1475,37 @@ async function genInvoice(){
     jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
   };
   try{
-    // Generate PDF blob (renders once, used for both save methods)
-    const pdfDoc=await html2pdf().set(opt).from(html).toPdf().get('pdf');
-    const blob=pdfDoc.output('blob');
-
+    // Show Save As dialog FIRST while the click gesture is still active.
+    // Calling it after any await loses the user-activation token and the
+    // browser silently falls back to an auto-download temp file.
+    let fileHandle=null;
     if(window.showSaveFilePicker){
-      // Modern browsers: show native "Save As" dialog
-      let handle;
       try{
-        handle=await window.showSaveFilePicker({
+        fileHandle=await window.showSaveFilePicker({
           suggestedName:filename,
           types:[{description:'PDF Document',accept:{'application/pdf':['.pdf']}}]
         });
       }catch(e){
-        if(e.name==='AbortError')return; // user cancelled — keep modal open, do nothing
-        throw e;
+        if(e.name==='AbortError')return; // user cancelled — keep modal open
+        // NotAllowedError or anything else: fall through to auto-download
       }
-      const writable=await handle.createWritable();
+    }
+
+    // Now generate the PDF
+    const pdfDoc=await html2pdf().set(opt).from(html).toPdf().get('pdf');
+    const blob=pdfDoc.output('blob');
+
+    if(fileHandle){
+      const writable=await fileHandle.createWritable();
       await writable.write(blob);
       await writable.close();
     }else{
-      // Fallback for browsers without File System Access API
+      // Fallback: anchor-click download
       const url=URL.createObjectURL(blob);
       const a=document.createElement('a');
-      a.href=url;a.download=filename;a.click();
-      setTimeout(()=>URL.revokeObjectURL(url),5000);
+      a.href=url;a.download=filename;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),10000);
     }
 
     await db.collection('invoices').add({
