@@ -622,13 +622,13 @@ const fc=n=>'₱'+(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const fd=ts=>ts?.toDate?ts.toDate().toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'}):'—';
 const fdt=ts=>ts?.toDate?ts.toDate().toLocaleString('en-PH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
 
-function toast(msg,type='info'){
+function toast(msg,type='info',duration=3200){
   const e=document.createElement('div');
   const ico={success:'✓',error:'✗',warning:'⚠',info:'ℹ'};
   e.className=`toast ${type}`;
   e.innerHTML=`<span>${ico[type]||'ℹ'}</span><span>${msg}</span>`;
   $('toasts').appendChild(e);
-  setTimeout(()=>{e.style.animation='sOut .22s ease forwards';setTimeout(()=>e.remove(),240);},3200);
+  setTimeout(()=>{e.style.animation='sOut .22s ease forwards';setTimeout(()=>e.remove(),240);},duration);
 }
 function openMov(id){$(id).classList.add('open');}
 function closeMov(id){$(id).classList.remove('open');}
@@ -1483,7 +1483,7 @@ async function genInvoice(){
       createdAt:TS(),createdBy:S.user?.email||'system'
     });
     await audit('GENERATE_INVOICE','invoices',invoiceNo,{orderId:INV.oid,type:INV.type,amount:payAmt});
-    toast(`Invoice downloaded: ${invoiceNo}`,'success');
+    toast(`Saved to Downloads: ${filename}`,'success',7000);
     closeMov('invMov');
   }catch(e){toast('Invoice error: '+e.message,'error');console.error(e);}
   finally{btn.disabled=false;btn.innerHTML=orig;}
