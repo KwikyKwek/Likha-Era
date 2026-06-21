@@ -1475,7 +1475,33 @@ async function genInvoice(){
     jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
   };
   try{
-    await html2pdf().set(opt).from(html).save();
+    // Generate PDF blob (renders once, used for both save methods)
+    const pdfDoc=await html2pdf().set(opt).from(html).toPdf().get('pdf');
+    const blob=pdfDoc.output('blob');
+
+    if(window.showSaveFilePicker){
+      // Modern browsers: show native "Save As" dialog
+      let handle;
+      try{
+        handle=await window.showSaveFilePicker({
+          suggestedName:filename,
+          types:[{description:'PDF Document',accept:{'application/pdf':['.pdf']}}]
+        });
+      }catch(e){
+        if(e.name==='AbortError')return; // user cancelled — keep modal open, do nothing
+        throw e;
+      }
+      const writable=await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    }else{
+      // Fallback for browsers without File System Access API
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download=filename;a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+    }
+
     await db.collection('invoices').add({
       orderId:INV.oid,orderLabel:INV.o.orderLabel,invoiceNo,type:INV.type,
       customerName:custName||null,customerEmail:INV.o.email||null,
@@ -1483,7 +1509,7 @@ async function genInvoice(){
       createdAt:TS(),createdBy:S.user?.email||'system'
     });
     await audit('GENERATE_INVOICE','invoices',invoiceNo,{orderId:INV.oid,type:INV.type,amount:payAmt});
-    toast(`Saved to Downloads: ${filename}`,'success',7000);
+    toast(`Invoice saved: ${filename}`,'success',5000);
     closeMov('invMov');
   }catch(e){toast('Invoice error: '+e.message,'error');console.error(e);}
   finally{btn.disabled=false;btn.innerHTML=orig;}
