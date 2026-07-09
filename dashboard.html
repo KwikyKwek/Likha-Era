@@ -1235,7 +1235,6 @@ function openItemModal(id=null){
 async function saveItem(){
   const lbl=gv('iLbl'),price=parseFloat(gval('iPrice'))||0;
   if(!lbl)return showE('iErr','Item label required.');
-  if(price<=0)return showE('iErr','Base price must be > 0.');
   const btn=$('iSaveBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
   const data={itemLabel:lbl,itemDescription:gv('iDesc'),basePrice:price,prefix:gval('iPrefix'),stockQty:parseInt(gval('iStock'))||0,itemImageUrl:gv('iImg'),active:$('iActive').checked};
   try{
