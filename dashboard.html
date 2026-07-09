@@ -902,7 +902,6 @@ async function submitOrder(){
   if(!pay)return toast('Select a payment method.','error');
   if(!plat)return toast('Select a platform.','error');
   if(S.lines.some(l=>!l.itemId))return toast('All lines must have an item.','error');
-  if(S.lines.some(l=>l.finalCost<=0))return toast('Final cost must be > 0.','error');
   // Stock validation
   for(const l of S.lines){
     const itm=S.lk.items[l.itemId];
